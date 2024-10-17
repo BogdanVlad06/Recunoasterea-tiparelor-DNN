@@ -1,16 +1,15 @@
-let dim = 28, dp = 15;
-let grid = new Grid(dim, dp);
+let noPixels = 28, imgWidth = 15 * 28;
+let grid = new Grid(noPixels, imgWidth);
 let canvas;
 
 function setup() {
-    canvas = createCanvas(dim * dp + 1, dim * dp + 1);
-    grid.genCells();
+    canvas = createCanvas(imgWidth + 1, imgWidth + 1);
     centerCanvas(canvas, windowWidth, width, windowHeight, height);
 }
 
 function draw() {
     background(220);
-    grid.visualise();
+    grid.show();
 }
 
 function mouseDragged() {

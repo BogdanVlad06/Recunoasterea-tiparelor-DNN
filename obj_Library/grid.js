@@ -1,34 +1,36 @@
 class Grid {
-    constructor(dim, dimPatrat) {
-        this.d = dim;
-        this.dP = dimPatrat;
-        this.grid = mk2DArr(this.d, this.d);
+    constructor(size, width) {
+        this.size = size; // No of pixels
+        this.width = width; // Total width of grid
+        this.grid = mk2DArr(this.size, this.size);
+        this.genCells();
     }
 
     genCells() {
-        for (let i = 0; i < this.d; ++i) {
-            for (let j = 0; j < this.d; ++j) {
-                this.grid[i][j] = new Cell(i * this.dP, j * this.dP, this.dP, 0);
+        for (let i = 0; i < this.size; ++i) {
+            for (let j = 0; j < this.size; ++j) {
+                this.grid[i][j] = new Cell(i, j, this.width / this.size, 0);
           }
         }
     }
 
-    visualise() {
-        for (let i = 0; i < this.d; ++i) {
-            for (let j = 0; j < this.d; ++j) {
+    show() { 
+        for (let i = 0; i < this.size; ++i) {
+            for (let j = 0; j < this.size; ++j) {
                 this.grid[i][j].show();
             }
         }
     }
 
     inBounds(x, y) {
-        return (x >= 0 && x < this.d && y >= 0 && y < this.d);
+        return (x >= 0 && x < this.size && y >= 0 && y < this.size);
     }
 
     colour(x, y) {
-        x = Math.floor(x / this.dP), y = Math.floor(y / this.dP);
+        x = Math.floor(x / (this.width / this.size)), y = Math.floor(y / (this.width / this.size));
         if (this.inBounds(x, y)) {
-            this.grid[x][y].changeVal(1); 
+            this.grid[x][y].setVal(1); 
+            // lee care porneste din  X,Y si are intensitatea 1, si sa isi piarda din intensitate (importanta redusa)
             let v = [
                 {dx: 0, dy: -1, val: 0.75},  // sus
                 {dx: 0, dy: 1, val: 0.75},   // jos
@@ -46,7 +48,7 @@ class Grid {
                     if (this.inBounds(xV, yV)) {
                         let randomVal = v[i].val + random(-0.15, 0.15); // Randomize the value
                         randomVal = constrain(randomVal, 0, 1);
-                        this.grid[xV][yV].changeVal(max(this.grid[xV][yV].getVal(), randomVal));
+                        this.grid[xV][yV].setVal(max(this.grid[xV][yV].getVal(), randomVal));
                     }
                 }
             }
@@ -54,12 +56,12 @@ class Grid {
             /*for (let i = 0; i < v.length; ++i) {
                 let xV = x + v[i].dx, yV = y + v[i].dy;
                 if (this.inBounds(xV, yV)) {
-                    this.grid[xV][yV].changeVal(max(this.grid[xV][yV].getVal(), v[i].val));
+                    this.grid[xV][yV].setVal(max(this.grid[xV][yV].getVal(), v[i].val));
                 }
             } */
         }
     }
-
+// ------------- Getter -------------
     getGrid() {
         return this.grid;
     }
