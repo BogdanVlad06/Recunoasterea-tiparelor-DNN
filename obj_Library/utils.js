@@ -25,3 +25,9 @@ function logArr(arr) {
 function sigmoid(number) {
     return Math.exp(number) / (1 + Math.exp(number));
 }
+
+function centerCanvas(canvas, wW, w, wH, h) {
+    let x = (wW - w) / 2;
+    let y = (wH - h) / 2;
+    canvas.position(x, y);  
+}
