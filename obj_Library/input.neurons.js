@@ -11,8 +11,8 @@ class inpNeuron {
             }
         }
     }
-
-    getNeurons() {
+// ---------------- Getter ---------------
+    getInputNeurons() {
         return this.neuron;
     }
     

@@ -1,11 +1,11 @@
-class neuron {
+class Neuron {
     constructor(input) {
         this.weightedSum = 0;
         this.size = input.length;
         this.b = random(-1, 1);
         this.w = new Array(this.size);
         this.genW();
-        this.feedforward(input);
+        this.computeSum(input);
     }
 
     genW() {
