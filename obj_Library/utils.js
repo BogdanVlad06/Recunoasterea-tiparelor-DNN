@@ -5,3 +5,7 @@ function mk2DArr(rows, cols) {
     }
     return arr;
 }
+
+function sigmoid(number) {
+    return Math.exp(number) / (1 + Math.exp(number));
+}
