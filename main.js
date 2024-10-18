@@ -1,3 +1,7 @@
+//IMPORTANT!!! coordonatele carteziene(x, y) in p5js canvas sunt INVERSATE x -> y si y -> x.
+// din acest motiv voi schimba logicile astfel incat coord x, y la care ma voi referi in cod vor fi corect logic
+// in alte cuvinte inversez alocuri;
+
 let noPixels = 28, imgWidth = 15 * 28;
 let grid = new Grid(noPixels, imgWidth);
 let canvas;
@@ -7,12 +11,14 @@ let PredictionText;
 function setup() {
     canvas = createCanvas(imgWidth + 1, imgWidth + 1);
     centerCanvas(canvas, windowWidth, width, windowHeight, height);
-        
+    
+    console.log(grid);
     predictionButton = createButton('Predict');
     PredictionText = createDiv();
     predictionButton.position(canvas.x, canvas.y - 21);
     predictionButton.mouseClicked(
         function() {
+            console.log(grid);
             let input = flatten(grid.getGrid());
             let NN = new NeuralNetwork(input, 3);
             PredictionText.html('Predicted: ' + NN.getPrediction());
@@ -27,8 +33,8 @@ function draw() {
     grid.show();
 }
 
-function mouseDragged() {
-    grid.colour(mouseX, mouseY);
+function mouseDragged() { 
+    grid.colour(mouseY, mouseX); // mouseX se refera la Y (mergand pe axa oY) analog pt mouseY;
 }
 
 function windowResized() {

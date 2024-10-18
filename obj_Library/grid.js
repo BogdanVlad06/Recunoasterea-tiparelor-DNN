@@ -1,3 +1,5 @@
+// grid ul merge coloana cate coloana si la fiecare coloana ia toate randurile
+
 class Grid {
     constructor(size, width) {
         this.size = size; // No of pixels
@@ -7,17 +9,17 @@ class Grid {
     }
 
     genCells() {
-        for (let i = 0; i < this.size; ++i) {
-            for (let j = 0; j < this.size; ++j) {
-                this.grid[i][j] = new Cell(i, j, this.width / this.size, 0);
+        for (let y = 0; y < this.size; ++y) {
+            for (let x = 0; x < this.size; ++x) {
+                this.grid[y][x] = new Cell(x,  y, this.width / this.size, 0);
           }
         }
     }
 
     show() { 
-        for (let i = 0; i < this.size; ++i) {
-            for (let j = 0; j < this.size; ++j) {
-                this.grid[i][j].show();
+        for (let y = 0; y < this.size; ++y) {
+            for (let x = 0; x < this.size; ++x) {
+                this.grid[y][x].show();
             }
         }
     }
