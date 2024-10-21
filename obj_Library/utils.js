@@ -31,6 +31,16 @@ function centerCanvas(canvas, wW, w, wH, h) {
     let y = (wH - h) / 2;
     canvas.position(x, y);  
 }
+
+function dataPixelToValue(pixelColorArr) {
+    let convertedValuesArr = new Array(pixelColorArr.length);
+    let white = 255;
+    for (let i = 0; i < pixelColorArr.length; ++i) {
+        convertedValuesArr[i] = pixelColorArr[i] / white;
+        // 255 e alb(activ maximain MINST) si eu vr sa ii dau val de 1, atunci trb sa impart la 255.
+    }
+    return convertedValuesArr;
+}
 /* ---------------------------------- verificare a datelor MINST ----------------------------------
 // setup{
     let row = mnistData.getRow(0);  // For example, let's load the first image
