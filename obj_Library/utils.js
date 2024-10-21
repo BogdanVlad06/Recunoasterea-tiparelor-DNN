@@ -31,3 +31,33 @@ function centerCanvas(canvas, wW, w, wH, h) {
     let y = (wH - h) / 2;
     canvas.position(x, y);  
 }
+/* ---------------------------------- verificare a datelor MINST ----------------------------------
+// setup{
+    let row = mnistData.getRow(0);  // For example, let's load the first image
+    let label = row.getString(0);   // The label (first value in row)
+    let pixels = row.arr.slice(1);  // The pixel values (remaining 784 values)
+    
+    // Convert the pixel array to a 28x28 grid and visualize it
+    visualizeImage(pixels, label);
+}
+
+function visualizeImage(pixels, label) {
+    background(255);  // White background
+    let imgSize = 28;  // 28x28 grid size
+    let pixelIndex = 0;
+    
+    for (let i = 0; i < imgSize; i++) {
+        for (let j = 0; j < imgSize; j++) {
+            let pixelValue = int(pixels[pixelIndex]);  // Get the pixel value (0-255)
+            fill(pixelValue);  // Set the color based on pixel intensity (grayscale)
+            rect(j * 10, i * 10, 10, 10);  // Draw the pixel (scaled up for visibility)
+            pixelIndex++;
+        }
+    }
+    
+    // Display the label
+    textSize(32);
+    fill(0);
+    text(`Label: ${label}`, 10, 300);
+}
+*/

@@ -1,7 +1,14 @@
 //IMPORTANT!!! coordonatele carteziene(x, y) in p5js canvas sunt INVERSATE x -> y si y -> x.
 // din acest motiv voi schimba logicile astfel incat coord x, y la care ma voi referi in cod vor fi corect logic
 // in alte cuvinte inversez alocuri;
+//-------------------------------------- LOADING DATASET ---------------------------------------
+// let mnistData;
 
+// function preload() {
+//   // Load the MNIST dataset CSV file
+//   mnistData = loadTable('MINST_dataset/mnist_train.csv', 'csv', 'header');
+// }
+//---------------------------------- PROGRAM ----------------------------------
 let noPixels = 28, imgWidth = 15 * 28;
 let grid = new Grid(noPixels, imgWidth);
 let canvas;
