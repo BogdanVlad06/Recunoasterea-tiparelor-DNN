@@ -2,14 +2,13 @@
 // din acest motiv voi schimba logicile astfel incat coord x, y la care ma voi referi in cod vor fi corect logic
 // in alte cuvinte inversez alocuri;
 //-------------------------------------- LOADING DATASET ---------------------------------------
-// let mnistData;
-
+// let mnistData; // In data MINST, pixel alb(255) este echivalent cu activare maxima, adica negrul repr fundal;
 // function preload() {
 //   // Load the MNIST dataset CSV file
 //   mnistData = loadTable('MINST_dataset/mnist_train.csv', 'csv', 'header');
 // }
 //---------------------------------- PROGRAM ----------------------------------
-let noPixels = 28, imgWidth = 15 * 28;
+let noPixels = 28, imgWidth = 15 * noPixels;
 let grid = new Grid(noPixels, imgWidth);
 let canvas;
 let predictionButton;
