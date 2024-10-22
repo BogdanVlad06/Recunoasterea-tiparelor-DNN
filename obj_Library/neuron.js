@@ -25,4 +25,8 @@ class Neuron {
     getActivation() {
         return sigmoid(this.weightedSum)
     }
+
+    getWeightedSum() {
+        return this.weightedSum;
+    }
 }

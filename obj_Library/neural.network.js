@@ -6,10 +6,12 @@ class NeuralNetwork {
         this.outputNeuronArr = new Array(10);
         this.outputActivationArr = new Array(10);
     
+        this.caseProbability = new Array(10);
         this.prediction = -1;
 
         this.forwardHiddenLayers(valueArr, 1, noHiddenLayers);
         this.forwardOutputLayer(noHiddenLayers);
+        this.predict();
     }
 
     // (array of activations), (current currentLayer number), (No of HidLayers); 
@@ -20,7 +22,7 @@ class NeuralNetwork {
 
         for (let i = 0; i < newNoNeurons; ++i) {
             this.neuronArr_perLayer[currentLayer][i] = new Neuron(input);
-            this.activationArr_perLayer[currentLayer][i] = this.neuronArr_perLayer[currentLayer][i].getActivation;
+            this.activationArr_perLayer[currentLayer][i] = this.neuronArr_perLayer[currentLayer][i].getActivation();
         }
         
         if (currentLayer >= noHiddenLayers) { // conditia de final;
@@ -33,20 +35,26 @@ class NeuralNetwork {
 
     forwardOutputLayer(noHiddenLayers) {
         let lastHidLayerIndex = noHiddenLayers;
+        let expSum = 0;
         for (let i = 0; i < 10; ++i) {
             this.outputNeuronArr[i] = new Neuron(this.getLayerActivationArr(lastHidLayerIndex));
             this.outputActivationArr[i] = this.outputNeuronArr[i].getActivation();
+            expSum += Math.exp(this.outputActivationArr[i]);
         }
+        for (let digit = 0; digit < 10; ++digit) {
+            this.caseProbability[digit] = softmax(this.outputActivationArr[digit], expSum);
+        }
+        console.log(this.caseProbability);
+        
     }
     
     predict() {
         let prediction = -1, maxAct = 0;
 
-        for (let i = 0; i < 10; ++i) {
-            let digitActivation =  this.outputActivationArr[i];
-            if (maxAct < digitActivation) {
-                maxAct = digitActivation;
-                prediction = i;
+        for (let digit = 0; digit < 10; ++digit) {
+            if (maxAct < this.caseProbability[digit]) {
+                maxAct = this.caseProbability[digit];
+                prediction = digit;
             }
         }
         

@@ -26,6 +26,10 @@ function sigmoid(number) {
     return Math.exp(number) / (1 + Math.exp(number));
 }
 
+function softmax(activ, outputActivExpSum) {
+    return Math.exp(activ) / outputActivExpSum;
+}
+
 function centerCanvas(canvas, wW, w, wH, h) {
     let x = (wW - w) / 2;
     let y = (wH - h) / 2;
