@@ -26,6 +26,10 @@ function sigmoid(number) {
     return Math.exp(number) / (1 + Math.exp(number));
 }
 
+function sigmoidDerivate(calculatedSigmoid) { // the neuron's Activation is the sigmoid function of the weightedSum
+    return calculatedSigmoid * (1 - calculatedSigmoid);
+}
+
 function softmax(activ, outputActivExpSum) {
     return Math.exp(activ) / outputActivExpSum;
 }

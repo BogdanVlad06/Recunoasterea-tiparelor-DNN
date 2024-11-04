@@ -3,7 +3,7 @@ class Neuron {
         this.weightedSum = 0;
         this.size = input.length;
         this.b = random(-1, 1);
-        this.w = new Array(this.size);
+        this.w = new Array(this.size); // am ales sa asociez w[indx] cu neuronul din [L-1][indx]
         this.genW();
         this.computeSum(input);
     }
@@ -28,5 +28,25 @@ class Neuron {
 
     getWeightedSum() {
         return this.weightedSum;
+    }
+
+    getWeight(index) {
+        return this.w[index];
+    }
+
+    getBias() {
+        return this.b;
+    }
+
+    getNoWeights() {
+        return this.size;
+    }
+// --------- Setters -----------
+    setWeight(index, value) {
+        this.w[index] = value;
+    }
+
+    setBias(value) {
+        this.b = value;
     }
 }

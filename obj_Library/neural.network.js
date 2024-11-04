@@ -1,12 +1,12 @@
 class NeuralNetwork {
-    constructor(valueArr, noHiddenLayers) {
+    constructor(valueArr, noHiddenLayers, learningRate) {
         this.neuronArr_perLayer = new Array(noHiddenLayers + 1); 
-        this.activationArr_perLayer = new Array(noHiddenLayers + 1);
+        this.activationArr_perLayer = new Array(noHiddenLayers + 1); // imi pare ca e inutila si ar putea fi ceva local in FHL
         //oare ar fi mai logic sa integrez output-ul in datele de mai sus, sa fie stocate pe indexul NoHiddenLayers?
         this.outputNeuronArr = new Array(10);
         this.outputActivationArr = new Array(10);
     
-        this.caseProbability = new Array(10);
+        this.caseProbability = new Array(10); // probabilitatile
         this.prediction = -1;
 
         this.forwardHiddenLayers(valueArr, 1, noHiddenLayers);
@@ -44,10 +44,8 @@ class NeuralNetwork {
         for (let digit = 0; digit < 10; ++digit) {
             this.caseProbability[digit] = softmax(this.outputActivationArr[digit], expSum);
         }
-        console.log(this.caseProbability);
-        
     }
-    
+
     predict() {
         let prediction = -1, maxAct = 0;
 
@@ -60,6 +58,50 @@ class NeuralNetwork {
         
         this.prediction = prediction;
     }
+
+    calculateLoss(label) { // cu CCEL, (am omis sa folosesc MSE)
+        let loss = -Math.log(this.caseProbability[label]);
+        return loss;
+    }
+
+    // backprop imi calculeaza gradientul
+    gradientCalculus(label, noHiddenLayers) { // cifra coresp inputului = label 
+        let outputGradient = new Array(10); 
+        for (let i = 0; i < 10; ++i) {
+            outputGradient[i] = this.caseProbability[i];
+            if (i == label) {
+                outputGradient[i] -= 1;
+            }
+        }
+        
+        let gradientArr_perLayer = new Array(noHiddenLayers + 2);
+        gradientArr_perLayer[noHiddenLayers + 1] = outputGradient;
+
+        let size = this.neuronArr_perLayer[noHiddenLayers].length;
+        gradientArr_perLayer[noHiddenLayers] = new Array(size);
+        // loop lastHiddenLayer 
+        for (let ind = 0; ind < size; ++ind) {
+            let gradientValue = 0;
+            for(let j = 0; j < 10; ++j) { // output neurons loop, The sum of the gradients
+                gradientValue += outputGradient[j] * this.outputNeuronArr[j].getWeight(ind);
+            }
+            gradientArr_perLayer[noHiddenLayers][ind] = gradientValue * sigmoidDerivate(this.neuronArr_perLayer[noHiddenLayers][ind].getActivation());
+        }
+        // loop layers
+        for (let layer = noHiddenLayers - 1; layer > 0; --layer) {
+           let noNeurons = this.neuronArr_perLayer[layer].length;
+            //loop neurons of layer
+            for (let neuronInd = 0; neuronInd < noNeurons; ++neuronInd) {
+                let gradientValue = 0;
+                size = this.neuronArr_perLayer[layer + 1].length;
+                // loop corespWeights to calculate gradient
+                for (let ind = 0; ind < size; ++ind) {
+                    gradientValue += gradientArr_perLayer[layer + 1][ind] * this.neuronArr_perLayer[layer + 1][ind].getWeight(ind);
+                }
+                gradientArr_perLayer[layer][neuronInd] = gradientValue * sigmoidDerivate(this.neuronArr_perLayer[layer][neuronInd].getActivation())
+            }
+        }
+    }
 // ---------------------- GETTERS -----------------------
     getLayerActivationArr(layerIndex) {
         return this.activationArr_perLayer[layerIndex];
@@ -69,3 +111,5 @@ class NeuralNetwork {
         return this.prediction;
     }
 }
+
+// propunere : sa mut FOL in FHL si sa il fac ForwardPass simplu
