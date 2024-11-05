@@ -13,6 +13,7 @@ let grid = new Grid(noPixels, imgWidth);
 let canvas;
 let predictionButton;
 let PredictionText;
+let learningRate = 0.3;
 
 function setup() {
     canvas = createCanvas(imgWidth + 1, imgWidth + 1);
@@ -26,7 +27,7 @@ function setup() {
         function() {
             console.log(grid);
             let input = flatten(grid.getGrid());
-            let NN = new NeuralNetwork(input, 3);
+            let NN = new NeuralNetwork(input, 3, learningRate);
             PredictionText.html('Predicted: ' + NN.getPrediction());
             PredictionText.position(canvas.x + (imgWidth / 2) - 60, canvas.y + imgWidth);
             PredictionText.style('font-size', '32px');

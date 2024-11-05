@@ -43,6 +43,7 @@ class Neuron {
     }
 // --------- Setters -----------
     setWeight(index, value) {
+        //console.log("w de la[" + index + "] devine din : " + this.w[index] + " -> " + value);
         this.w[index] = value;
     }
 
