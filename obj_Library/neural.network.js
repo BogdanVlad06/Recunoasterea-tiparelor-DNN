@@ -60,11 +60,11 @@ class NeuralNetwork {
     }
 
     calculateLoss(label) { // cu CCEL, (am omis sa folosesc MSE)
-        let loss = -Math.log(this.caseProbability[label]);
+        let loss = -Math.log(this.caseProability[label]);
         return loss;
     }
 
-    // backprop imi calculeaza gradientul
+    // calculeaza gradientul (delta) : “δj(l)​\= σ′(zj(l)​) k ∑ ​wkj(l+1) ​δk(l+1)​”
     gradientCalculus(label, noHiddenLayers) { // cifra coresp inputului = label 
         let outputGradient = new Array(10); 
         for (let i = 0; i < 10; ++i) {
@@ -92,16 +92,62 @@ class NeuralNetwork {
            let noNeurons = this.neuronArr_perLayer[layer].length;
             //loop neurons of layer
             for (let neuronInd = 0; neuronInd < noNeurons; ++neuronInd) {
-                let gradientValue = 0;
+                let gradientValue = 0; 
                 size = this.neuronArr_perLayer[layer + 1].length;
                 // loop corespWeights to calculate gradient
-                for (let ind = 0; ind < size; ++ind) {
+                for (let ind = 0; ind < size; ++ind) { // k ∑ ​wkj(l+1) ​δk(l+1)
                     gradientValue += gradientArr_perLayer[layer + 1][ind] * this.neuronArr_perLayer[layer + 1][ind].getWeight(ind);
                 }
                 gradientArr_perLayer[layer][neuronInd] = gradientValue * sigmoidDerivate(this.neuronArr_perLayer[layer][neuronInd].getActivation())
             }
         }
     }
+
+    updateWeightsAndBias(input, gradientArr_perLayer, noHiddenLayers, learningRate) { // nefinalizat
+        //Layer 1 caz particular: in loc de this.neuronArr_perLayer[layer - 1][ind].getActivation(), folosim direct inputu
+        let noNeuronsPerLayer = this.neuronArr_perLayer[1].length;
+        for (let neuronInd = 0, layer = 1; neuronInd < noNeuronsPerLayer; ++neuronInd) { // loop layer's neurons
+            let noWeights = this.neuronArr_perLayer[layer][neuronInd].getNoWeights();
+            let delta = gradientArr_perLayer[layer][neuronInd];
+            for (let ind = 0; ind < noWeights; ++ind) { // loop neuron's weights
+                let weightGradient = input[ind] * delta;
+                let newValueOfWeight = this.neuronArr_perLayer[layer][neuronInd].getWeight(ind) - (weightGradient * learningRate);
+                this.neuronArr_perLayer[layer][neuronInd].setWeight(ind, newValueOfWeight);
+            }
+            let newValueOfBias = this.neuronArr_perLayer[layer][neuronInd].getBias() - (delta * learningRate);
+            this.neuronArr_perLayer[layer][neuronInd].setBias(newValueOfBias);
+        }
+        // loop Hidden
+        for (let layer = 2; layer <= noHiddenLayers; ++layer) {
+            noNeuronsPerLayer = this.neuronArr_perLayer[layer].length;
+            for (let neuronInd = 0; neuronInd < noNeuronsPerLayer; ++neuronInd) { // loop layer's neurons
+                let noWeights = this.neuronArr_perLayer[layer][neuronInd].getNoWeights();
+                let delta = gradientArr_perLayer[layer][neuronInd];
+                for (let ind = 0; ind < noWeights; ++ind) { // loop neuron's weights
+                    let weightGradient = this.neuronArr_perLayer[layer - 1][ind].getActivation() * delta;
+                    let newValueOfWeight = this.neuronArr_perLayer[layer][neuronInd].getWeight(ind) - (weightGradient * learningRate);
+                    this.neuronArr_perLayer[layer][neuronInd].setWeight(ind, newValueOfWeight);
+                }
+                let newValueOfBias = this.neuronArr_perLayer[layer][neuronInd].getBias() - (delta * learningRate);
+                this.neuronArr_perLayer[layer][neuronInd].setBias(newValueOfBias);
+            }
+        }
+
+        // loop output
+        let noOutputNeurons = this.outputNeuronArr.length;
+        for (let j = 0; j < noOutputNeurons; ++j) {
+            let noWeights = this.outputNeuronArr[j].getNoWeights();
+            let delta = gradientArr_perLayer[noHiddenLayers + 1][j];
+            for (let i = 0; i < noWeights; ++i) {
+                let weightGradient = this.neuronArr_perLayer[noHiddenLayers][i].getActivation() * delta;
+                let newValueOfWeight = this.outputNeuronArr[j].getWeight(i) - ( weightGradient * learningRate);
+                this.outputNeuronArr[j].setWeight(i, newValueOfWeight);
+            }
+            let newValueOfBias = this.outputNeuronArr[j].getBias() - (delta * learningRate);
+            this.outputNeuronArr[j].setBias(newValueOfBias);
+        }
+    }
+
 // ---------------------- GETTERS -----------------------
     getLayerActivationArr(layerIndex) {
         return this.activationArr_perLayer[layerIndex];
