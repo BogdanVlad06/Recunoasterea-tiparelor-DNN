@@ -1,21 +1,21 @@
 class Neuron {
     constructor(inputDim) {
         this.weightedSum = 0;
-        this.b = random(-1, 1);
         this.numWeights = inputDim;
         this.w = new Array(inputDim); // am ales sa asociez w[indx] cu neuronul din [L-1][indx]
+        this.b = random(-1, 1);
         this.genW();
     }
 
     genW() {
-        for (let i = 0; i < this.size; ++i) {
+        for (let i = 0; i < this.numWeights; ++i) {
             this.w[i] = random(-1, 1);
         }
     }
 
     feed(input) { // compute weighted sum
         this.weightedSum = 0;
-        for (let i = 0; i < this.size; ++i) {
+        for (let i = 0; i < this.numWeights; ++i) {
             this.weightedSum += (this.w[i] * input[i]);
         }
         this.weightedSum += this.b;

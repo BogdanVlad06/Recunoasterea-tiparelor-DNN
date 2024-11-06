@@ -1,38 +1,34 @@
-// am lucrat la o initializare mai curata a retele
-// am facut un feedforward mai clar si mai curat
-// am facut getLayerActiv care merge logic si curat!
-// am facut computeCaseProb pentru a afla din ele predictiile la final
-
+// ramane sa realizez antrenarea retelei folosindu-ma de datele MINST
 class NeuralNetwork {
     constructor(inputDim, outputDim, noHiddenLayers, learningRate) {
         this.numHiddenLayers = noHiddenLayers;
         this.outputSize = outputDim; 
         this.learningRate = learningRate; 
         this.label;
+        this.sigmoidActivations = new Array(this.numHiddenLayers + 1);
 
         this.network = new Array(this.numHiddenLayers + 2);
-        this.initializeNetwork(this.numHiddenLayers, inputDim, this.outputSize);
+        this.initializeNetwork(inputDim);
         
         this.gradient = new Array(this.numHiddenLayers + 2)
-        this.sigmoidActivations = new Array(this.numHiddenLayers + 1);
 
         this.caseProbability = new Array(this.outputSize); 
         this.prediction = -1;
 
     }
 
-    initializeNetwork(numHiddenLayers, inputLayerDim, outputLayerDim) {
-        for (let layer = 1; layer <= numHiddenLayers + 1; ++layer) {
+    initializeNetwork(inputLayerDim) {
+        for (let layer = 1; layer <= this.numHiddenLayers + 1; ++layer) {
             let numNeurons; // the number of neurons for the current Layer
             let prevNumNeurons = Math.floor(inputLayerDim / (2 ** (layer - 1)));
-            if (layer > numHiddenLayers) { // Output layer case
-                numNeurons = outputLayerDim;
+            if (layer > this.numHiddenLayers) { // Output layer case
+                numNeurons = this.outputSize;
             } else {
                 numNeurons = Math.floor(inputLayerDim / (2 ** layer));
             }
             this.network[layer] = new Array(numNeurons);
             if (layer <= this.numHiddenLayers) {
-                this.sigmoidActivations[layer] =  new Array(numNeurons);
+                this.sigmoidActivations[layer] = new Array(numNeurons);
             }
             for (let i = 0; i < numNeurons; ++i) {
                 this.network[layer][i] = new Neuron(prevNumNeurons);
@@ -60,7 +56,7 @@ class NeuralNetwork {
     }
     
     backpropagate(label) {
-        gradient[this.numHiddenLayers + 1] = new Array(this.outputSize);
+        this.gradient[this.numHiddenLayers + 1] = new Array(this.outputSize);
         
         for (let i = 0; i < this.outputSize; ++i) {
             this.gradient[this.numHiddenLayers + 1][i] = this.caseProbability[i];
@@ -121,10 +117,10 @@ class NeuralNetwork {
     computeCaseProb() {
         let outputActivationArr = this.getLayerActivationArr(this.numHiddenLayers + 1, "none");
         let expSum = 0;
-        for (let i = 0; i < this.outputDim; ++i) {
+        for (let i = 0; i < this.outputSize; ++i) {
             expSum += Math.exp(outputActivationArr[i]);
         }
-        for (let digit = 0; digit < this.outputDim; ++digit) {
+        for (let digit = 0; digit < this.outputSize; ++digit) {
             this.caseProbability[digit] = softmax(outputActivationArr[digit], expSum);
         }
     }

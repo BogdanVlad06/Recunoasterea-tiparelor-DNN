@@ -11,7 +11,7 @@
 let noPixels = 28, imgWidth = 15 * noPixels;
 let grid = new Grid(noPixels, imgWidth);
 let canvas;
-let predictionButton;
+let predictionButton, resetGridButton, trainButton; // butoane
 let PredictionText;
 let learningRate = 0.3;
 
@@ -19,15 +19,41 @@ function setup() {
     canvas = createCanvas(imgWidth + 1, imgWidth + 1);
     centerCanvas(canvas, windowWidth, width, windowHeight, height);
     
-    console.log(grid);
+    let NN = new NeuralNetwork(noPixels ** 2, 10, 3, learningRate);
+    console.log(NN);
+    
+    resetGridButton = createButton("resetCanvas");
+    resetGridButton.mouseClicked(
+        function() {
+            grid = new Grid(noPixels, imgWidth);
+        }
+    ) 
+
+    trainButton = createButton("train");
+    trainButton.mouseClicked(
+        function() {
+            let input = flatten(grid.getGrid());
+            while (NN.calculateLoss(3) > 0.5){
+                console.log("loss: " + NN.calculateLoss(3));
+                NN.backpropagate(3);
+                NN.update();
+                NN.feedForward(input);
+                NN.computeCaseProb();
+            } 
+        }
+    ) 
+
     predictionButton = createButton('Predict');
     PredictionText = createDiv();
     predictionButton.position(canvas.x, canvas.y - 21);
     predictionButton.mouseClicked(
         function() {
-            console.log(grid);
             let input = flatten(grid.getGrid());
-            let NN = new NeuralNetwork(input, 3, learningRate);
+            NN.feedForward(input);
+            NN.computeCaseProb();
+            NN.predict();
+            console.log(NN);
+            console.log("loss before training: " + NN.calculateLoss(3));
             PredictionText.html('Predicted: ' + NN.getPrediction());
             PredictionText.position(canvas.x + (imgWidth / 2) - 60, canvas.y + imgWidth);
             PredictionText.style('font-size', '32px');
