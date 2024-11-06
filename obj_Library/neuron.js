@@ -1,12 +1,10 @@
 class Neuron {
     constructor(inputDim) {
-        this.activation = 0;
         this.weightedSum = 0;
         this.b = random(-1, 1);
         this.numWeights = inputDim;
         this.w = new Array(inputDim); // am ales sa asociez w[indx] cu neuronul din [L-1][indx]
         this.genW();
-        //this.computeSum(input);
     }
 
     genW() {
@@ -15,19 +13,14 @@ class Neuron {
         }
     }
 
-    computeSum(input) {
+    feed(input) { // compute weighted sum
         this.weightedSum = 0;
         for (let i = 0; i < this.size; ++i) {
             this.weightedSum += (this.w[i] * input[i]);
         }
         this.weightedSum += this.b;
-        this.activation = sigmoid(this.weightedSum);
     }
 // ----------- Getters --------------
-    getActivation() {
-        return this.activation;
-    }
-
     getWeightedSum() {
         return this.weightedSum;
     }
