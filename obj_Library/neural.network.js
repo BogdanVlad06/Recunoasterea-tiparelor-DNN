@@ -49,20 +49,30 @@ class NeuralNetwork {
             }
         }
     } 
+
+    computeCaseProb() { // calculateOutput
+        let outputActivationArr = this.getLayerActivationArr(this.numHiddenLayers + 1, "none");
+        let expSum = 0;
+        for (let i = 0; i < this.outputSize; ++i) {
+            expSum += Math.exp(outputActivationArr[i]);
+        }
+        for (let digit = 0; digit < this.outputSize; ++digit) {
+            this.caseProbability[digit] = softmax(outputActivationArr[digit], expSum);
+        }
+    }
     
     calculateLoss(label) { // cu CCEL, (am omis sa folosesc MSE)
         let loss = -Math.log(this.caseProbability[label]);
         return loss;
-    }
-    
-    backpropagate(label) {
+
         this.gradient[this.numHiddenLayers + 1] = new Array(this.outputSize);
-        
         for (let i = 0; i < this.outputSize; ++i) {
             this.gradient[this.numHiddenLayers + 1][i] = this.caseProbability[i];
         }
         this.gradient[this.numHiddenLayers + 1][label] -= 1;
-
+    }
+    
+    backpropagate() {
         for (let layer = this.numHiddenLayers; layer > 0; --layer) {
             let layerSize = this.network[layer].length;
             this.gradient[layer] = new Array(layerSize);
@@ -114,17 +124,6 @@ class NeuralNetwork {
         return activationsArr;
     }
 
-    computeCaseProb() {
-        let outputActivationArr = this.getLayerActivationArr(this.numHiddenLayers + 1, "none");
-        let expSum = 0;
-        for (let i = 0; i < this.outputSize; ++i) {
-            expSum += Math.exp(outputActivationArr[i]);
-        }
-        for (let digit = 0; digit < this.outputSize; ++digit) {
-            this.caseProbability[digit] = softmax(outputActivationArr[digit], expSum);
-        }
-    }
-    
     predict() {
         let digitPrediction = -1, maxAct = 0;
     
