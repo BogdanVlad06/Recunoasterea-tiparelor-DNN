@@ -7,7 +7,12 @@
 //   // Load the MNIST dataset CSV file
 //   mnistData = loadTable('MINST_dataset/mnist_train.csv', 'csv', 'header');
 // }
-//---------------------------------- PROGRAM ----------------------------------
+
+//import { Table } from "../../../../.vscode/extensions/samplavigne.p5-vscode-1.2.16/p5types/index";
+
+//---------------------------------- MINST Dataset ---------------------------------
+let trainData;
+//---------------------------------- Variables ----------------------------------
 let noPixels = 28, imgWidth = 15 * noPixels;
 let grid = new Grid(noPixels, imgWidth);
 let canvas;
@@ -15,7 +20,17 @@ let predictionButton, resetGridButton, trainButton; // butoane
 let PredictionText;
 let learningRate = 0.3;
 
+//let trainImages = new Array(), trainLabels = new Array();
+
+//---------------------------------- MINST Dataset table conversion ----------------------------------
+// function preload() {
+//     trainData = loadTable("MINST_dataset/mnist_train.csv", "csv", "header");
+//     console.log(trainData);  // Log to check if the data is loading correctly
+// }
+
 function setup() {
+    //processMINSTdata();
+    //console.log(trainImages[0]);
     canvas = createCanvas(imgWidth + 1, imgWidth + 1);
     centerCanvas(canvas, windowWidth, width, windowHeight, height);
     
@@ -35,10 +50,10 @@ function setup() {
             let input = flatten(grid.getGrid());
             while (NN.calculateLoss(3) > 0.5){
                 console.log("loss: " + NN.calculateLoss(3));
-                NN.backpropagate(3);
-                NN.update();
                 NN.feedForward(input);
                 NN.computeCaseProb();
+                NN.backpropagate(3);
+                NN.update();
             } 
         }
     ) 
@@ -75,3 +90,17 @@ function windowResized() {
     predictionButton.position(canvas.x, canvas.y - 21);
     PredictionText.position(canvas.x + (imgWidth / 2) - 60, canvas.y + imgWidth);
 }
+
+// function processMINSTdata() {
+//     for (let i = 0; i < trainData.getRowCount(); i++) {
+//         let row = trainData.getRow(i).arr;
+    
+//         // First value is the label
+//         let label = Number(row[0]);
+//         trainLabels.push(label);
+    
+//         // Rest are pixel values
+//         let image = row.slice(1).map(x => Number(x) / 255);
+//         trainImages.push(image);
+//       }
+// }

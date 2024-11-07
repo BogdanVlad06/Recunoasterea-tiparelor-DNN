@@ -6,17 +6,17 @@ class NeuralNetwork {
         this.learningRate = learningRate; 
         this.label;
         this.sigmoidActivations = new Array(this.numHiddenLayers + 1);
-
+        
         this.network = new Array(this.numHiddenLayers + 2);
         this.initializeNetwork(inputDim);
         
         this.gradient = new Array(this.numHiddenLayers + 2)
-
+        
         this.caseProbability = new Array(this.outputSize); 
         this.prediction = -1;
-
+        
     }
-
+    
     initializeNetwork(inputLayerDim) {
         for (let layer = 1; layer <= this.numHiddenLayers + 1; ++layer) {
             let numNeurons; // the number of neurons for the current Layer
@@ -35,7 +35,7 @@ class NeuralNetwork {
             }
         }
     }
-
+    
     feedForward(input) {
         this.network[0] = input;
         for (let layer = 1; layer <= this.numHiddenLayers + 1; ++layer) {
@@ -49,7 +49,7 @@ class NeuralNetwork {
             }
         }
     } 
-
+    
     computeCaseProb() { // calculateOutput
         let outputActivationArr = this.getLayerActivationArr(this.numHiddenLayers + 1, "none");
         let expSum = 0;
@@ -64,15 +64,15 @@ class NeuralNetwork {
     calculateLoss(label) { // cu CCEL, (am omis sa folosesc MSE)
         let loss = -Math.log(this.caseProbability[label]);
         return loss;
-
+    }
+    
+    backpropagate(label) {
         this.gradient[this.numHiddenLayers + 1] = new Array(this.outputSize);
         for (let i = 0; i < this.outputSize; ++i) {
             this.gradient[this.numHiddenLayers + 1][i] = this.caseProbability[i];
         }
         this.gradient[this.numHiddenLayers + 1][label] -= 1;
-    }
-    
-    backpropagate() {
+        
         for (let layer = this.numHiddenLayers; layer > 0; --layer) {
             let layerSize = this.network[layer].length;
             this.gradient[layer] = new Array(layerSize);
