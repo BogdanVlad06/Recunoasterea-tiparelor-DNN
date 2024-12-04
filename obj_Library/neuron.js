@@ -2,9 +2,14 @@ class Neuron {
     constructor(inputDim) {
         this.weightedSum = 0;
         this.numWeights = inputDim;
-        this.w = new Array(inputDim); // am ales sa asociez w[indx] cu neuronul din [L-1][indx]
-        this.b = random(-1, 1);
-        this.genW();
+        this.w;// pentru Random(-1, 1) this.w = new Array(inputDim); // am ales sa asociez w[indx] cu neuronul din [L-1][indx]
+        this.b = 0;
+        this.HeWeightInit(inputDim);
+    }
+
+    HeWeightInit(inpSize) {
+        const stdDev = Math.sqrt(2 / inpSize);
+        this.w = Array.from({ length: inpSize }, () => (Math.random() * 2 - 1) * stdDev);
     }
 
     genW() {
@@ -34,7 +39,7 @@ class Neuron {
     }
 
     getNoWeights() {
-        return this.size;
+        return this.numWeights;
     }
 // --------- Setters -----------
     setWeight(index, value) {

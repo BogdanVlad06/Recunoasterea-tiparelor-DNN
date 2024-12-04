@@ -1,41 +1,39 @@
+//---------------------------------- MINST Dataset table conversion ----------------------------------
 //IMPORTANT!!! coordonatele carteziene(x, y) in p5js canvas sunt INVERSATE x -> y si y -> x.
 // din acest motiv voi schimba logicile astfel incat coord x, y la care ma voi referi in cod vor fi corect logic
 // in alte cuvinte inversez alocuri;
-//-------------------------------------- LOADING DATASET ---------------------------------------
-// let mnistData; // In data MINST, pixel alb(255) este echivalent cu activare maxima, adica negrul repr fundal;
-// function preload() {
-//   // Load the MNIST dataset CSV file
-//   mnistData = loadTable('MINST_dataset/mnist_train.csv', 'csv', 'header');
-// }
 
-//import { Table } from "../../../../.vscode/extensions/samplavigne.p5-vscode-1.2.16/p5types/index";
-
-//---------------------------------- MINST Dataset ---------------------------------
+//---------------------------------- MINST Dataset table conversion ---------------------------------
 let trainData;
 //---------------------------------- Variables ----------------------------------
 let noPixels = 28, imgWidth = 15 * noPixels;
 let grid = new Grid(noPixels, imgWidth);
 let canvas;
-let predictionButton, resetGridButton, trainButton; // butoane
+// ----------------------- Buttons ---------------------------
+let predictionButton, resetGridButton, trainButton, saveButton, loadButton;
 let PredictionText;
-let learningRate = 0.3;
 
-//let trainImages = new Array(), trainLabels = new Array();
+//---------------------------------- NN parameters ----------------------------------
+let learningRate = 0.02;
+let numEpoch = 1;
+let inputDim = noPixels ** 2;
+let outputDim = 10;
+let numHidLayers = 2;
 
-//---------------------------------- MINST Dataset table conversion ----------------------------------
-// function preload() {
-//     trainData = loadTable("MINST_dataset/mnist_train.csv", "csv", "header");
-//     console.log(trainData);  // Log to check if the data is loading correctly
-// }
+//-------------------------------------- LOADING DATASET ---------------------------------------
+let trainImages = new Array(), trainLabels = new Array();
 
+function preload() {
+    trainData = loadTable("MINST_dataset/mnist_train.csv", "csv", "header");
+}
+
+//---------------------------------- Program ----------------------------------
 function setup() {
-    //processMINSTdata();
-    //console.log(trainImages[0]);
+    processMNISTdata();
     canvas = createCanvas(imgWidth + 1, imgWidth + 1);
     centerCanvas(canvas, windowWidth, width, windowHeight, height);
     
-    let NN = new NeuralNetwork(noPixels ** 2, 10, 3, learningRate);
-    console.log(NN);
+    let NN = new NeuralNetwork(inputDim, outputDim, numHidLayers, learningRate);
     
     resetGridButton = createButton("resetCanvas");
     resetGridButton.mouseClicked(
@@ -47,14 +45,8 @@ function setup() {
     trainButton = createButton("train");
     trainButton.mouseClicked(
         function() {
-            let input = flatten(grid.getGrid());
-            while (NN.calculateLoss(3) > 0.5){
-                console.log("loss: " + NN.calculateLoss(3));
-                NN.feedForward(input);
-                NN.computeCaseProb();
-                NN.backpropagate(3);
-                NN.update();
-            } 
+            let networkTrainer = new Trainer(NN, learningRate, 0.05);
+            networkTrainer.train(trainImages, trainLabels, numEpoch);
         }
     ) 
 
@@ -64,16 +56,32 @@ function setup() {
     predictionButton.mouseClicked(
         function() {
             let input = flatten(grid.getGrid());
-            NN.feedForward(input);
+            NN.feedForward(input, ReLU);
             NN.computeCaseProb();
             NN.predict();
             console.log(NN);
-            console.log("loss before training: " + NN.calculateLoss(3));
             PredictionText.html('Predicted: ' + NN.getPrediction());
             PredictionText.position(canvas.x + (imgWidth / 2) - 60, canvas.y + imgWidth);
             PredictionText.style('font-size', '32px');
         }
     );
+
+    saveButton = createButton("Save");
+    saveButton.mouseClicked(
+        function() {
+            NN.saveNetworkConfigToFile("obj_Library/SavedNetworkConfig.json");
+        }
+    )
+
+    loadButton = createButton("Load");
+    loadButton.mouseClicked(
+        function() {
+            NN.loadNetworkConfigFromFile("obj_Library/SavedNetworkConfig.json");
+        }
+    )
+
+    lossText = createDiv("Loss: 0").style('font-size', '16px').position(10, height - 40);
+    accuracyText = createDiv("Accuracy: 0%").style('font-size', '16px').position(10, height - 20);
 }
 
 function draw() {
@@ -91,16 +99,25 @@ function windowResized() {
     PredictionText.position(canvas.x + (imgWidth / 2) - 60, canvas.y + imgWidth);
 }
 
-// function processMINSTdata() {
-//     for (let i = 0; i < trainData.getRowCount(); i++) {
-//         let row = trainData.getRow(i).arr;
+function processMNISTdata() {
+    for (let i = 0; i < trainData.getRowCount(); i++) {
+        let row = trainData.getRow(i).arr;
     
-//         // First value is the label
-//         let label = Number(row[0]);
-//         trainLabels.push(label);
+        // First value is the label
+        let label = Number(row[0]);
+        trainLabels.push(label);
     
-//         // Rest are pixel values
-//         let image = row.slice(1).map(x => Number(x) / 255);
-//         trainImages.push(image);
-//       }
-// }
+        // Rest are pixel values
+        let image = row.slice(1).map(x => Number(x) / 255);
+        trainImages.push(image);
+      }
+}
+
+function updateMetrics(epochLoss, accuracy) {
+    if (epochLoss != 0) {
+        lossText.html("Loss: " + epochLoss.toFixed(4));
+        accuracyText.html("Accuracy: " + (accuracy * 100).toFixed(2) + "%");
+    }
+}
+
+// PROBLEM -se schimba valorile si devin negative mari

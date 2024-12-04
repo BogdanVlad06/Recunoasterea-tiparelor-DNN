@@ -22,6 +22,14 @@ function logArr(arr) {
     }
 }
 
+function ReLU(value) {
+    return Math.max(0, value);
+}
+
+function ReLUderivate(x) {
+    return x > 0 ? 1 : 0;
+}
+
 function sigmoid(number) {
     return Math.exp(number) / (1 + Math.exp(number));
 }
