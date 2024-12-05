@@ -1,71 +1,53 @@
 // ramane sa realizez antrenarea retelei folosindu-ma de datele MINST
 class NeuralNetwork {
-    constructor(inputDim, outputDim, noHiddenLayers, learningRate) {
-        this.numHiddenLayers = noHiddenLayers;
+    constructor(outputDim, numOfLayers, learningRate) {
+        this.numHiddenLayers = numOfLayers - 1;
         this.outputSize = outputDim; 
         this.learningRate = learningRate; 
         this.label;
-        // -- useless
-        this.sigmoidActivations = new Array(this.numHiddenLayers + 1);
-        // -- useless
+
         this.activation = new Array(this.numHiddenLayers + 2);
 
         this.network = new Array(this.numHiddenLayers + 2);
         this.averageGradient = new Array(this.numHiddenLayers + 2);
-        
-        this.initializeNetwork(inputDim);
-        
+                
         this.gradient = new Array(this.numHiddenLayers + 2);
 
         this.caseProbability = new Array(this.outputSize); 
         this.prediction = -1;
         
     }
+
+    initializeLayer(index, size, connections, activFunction) {
+        this.network[index] = new Layer(size, connections, activFunction);
+        this.averageGradient[index] = new Array(numNeurons).fill(0);
+    }
     
-    initializeNetwork(inputLayerDim) {
-        for (let layer = 1; layer <= this.numHiddenLayers + 1; ++layer) {
-            let numNeurons; // the number of neurons for the current Layer
-            let prevNumNeurons = Math.floor(inputLayerDim / (2 ** (layer - 1)));
-            if (layer > this.numHiddenLayers) { // Output layer case
-                numNeurons = this.outputSize;
-            } else {
-                numNeurons = Math.floor(inputLayerDim / (2 ** layer));
-            }
-            this.network[layer] = new Array(numNeurons);
-            this.averageGradient[layer] = new Array(numNeurons);
-            this.activation[layer] = new Array(numNeurons);
-            
-            for (let i = 0; i < numNeurons; ++i) {
-                this.network[layer][i] = new Neuron(prevNumNeurons);
-                this.averageGradient[layer][i] = 0;
-            }
+    feedForwardUsingMatrix(input) {
+        this.network[0] = new Layer(0, 0);
+        this.network[0].setActivations(input);
+
+        let W_matrix, prevA_matrix, B_matrix, Z_matrix;
+        for (let layerIndex = 1; layerIndex <= this.numHiddenLayers + 1; ++layerIndex) {
+            W_matrix = this.network[layerIndex].getWeightsMatrix();
+            prevA_matrix = this.network[layerIndex - 1].getActivationMatrix();
+            B_matrix = this.network[layerIndex].getBiasesMatrix();
+
+            Z_matrix = math.add(math.multiply(W_matrix, prevA_matrix), B_matrix);
+
+            this.network[layerIndex].computeActivation(Z_matrix);
         }
     }
     
-    feedForward(input, activFunction) {
-        this.activation[0] = input;
-        this.network[0] = input;
-        for (let layer = 1; layer <= this.numHiddenLayers + 1; ++layer) {
-            let numNeurons = this.network[layer].length;
-            //let prevLayerActivationArr = this.getLayerActivationArr(layer - 1, "sigmoid");
-            for (let i = 0; i < numNeurons; ++i) {
-                this.network[layer][i].feed(this.activation[layer - 1]);
-                this.activation[layer][i] = this.network[layer][i].getWeightedSum();
-                if (layer <= this.numHiddenLayers) {
-                    this.activation[layer][i] = activFunction(this.activation[layer][i]);
-                }
-            }
-        }
-    } 
-    
     computeCaseProb() { // calculateOutput
         //let outputActivationArr = this.getLayerActivationArr(this.numHiddenLayers + 1, "none");
-        let expSum = 0, outputLayer = this.numHiddenLayers + 1;
-        for (let i = 0; i < this.outputSize; ++i) {
-            expSum += Math.exp(this.activation[outputLayer][i]);
-        }
+        let outputLayerIndex = this.numHiddenLayers + 1;
+        let activations = this.network[outputLayerIndex].getActivationMatrix(),
+            expActivations = activations.map(Math.exp),
+            expSum = expActivations.reduce((acc, curr) => acc + curr, 0);
+        
         for (let digit = 0; digit < this.outputSize; ++digit) {
-            this.caseProbability[digit] = softmax(this.activation[outputLayer][digit], expSum);
+            this.caseProbability[digit] = softmax(activations[digit], expSum);
         }
     }
     
@@ -75,29 +57,16 @@ class NeuralNetwork {
     }
     
     backpropagate(label, actFunctionDerivate) {
-        this.gradient[this.numHiddenLayers + 1] = new Array(this.outputSize);
-        for (let i = 0; i < this.outputSize; ++i) {
-            this.gradient[this.numHiddenLayers + 1][i] = this.caseProbability[i];
-            if (i == label) {
-                this.gradient[this.numHiddenLayers + 1][i] -= 1;
-            }
-            this.averageGradient[this.numHiddenLayers + 1][i] += this.gradient[this.numHiddenLayers + 1][i];
-        }
+        this.gradient[this.numHiddenLayers + 1] = this.caseProbability;
+        this.gradient[this.numHiddenLayers + 1][label] -= 1;
+        this.averageGradient[this.numHiddenLayers + 1] = Math.add(this.averageGradient[this.numHiddenLayers + 1], this.gradient[this.numHiddenLayers + 1]);
         
         for (let layer = this.numHiddenLayers; layer > 0; --layer) {
-            let layerSize = this.network[layer].length;
-            this.gradient[layer] = new Array(layerSize);
-            let prevLayerSize = this.network[layer + 1].length;
+            let prevLayerDeltaGradients_matrix = Math.multiply(this.gradient[layer + 1], this.network[layer + 1].getWeightsMatrix()),
+                derivateActivation_matrix = this.network[layer].getActivationMatrix().map(actFunctionDerivate);
+            this.gradient[layer] = Math.multiply(derivateActivation_matrix, prevLayerDeltaGradients_matrix)
             
-            for (let i = 0; i < layerSize; ++i) {
-                let deltaOfPrevLayerGradients = 0; 
-                for (let j = 0; j < prevLayerSize; ++j) { // neuron ([l][i]) conectat de layer-ul din dreapta prin [l+1][j].weight(i) 
-                    deltaOfPrevLayerGradients += this.gradient[layer + 1][j] * this.network[layer + 1][j].getWeight(i);
-                }
-                this.gradient[layer][i] = actFunctionDerivate(this.activation[layer][i]) * deltaOfPrevLayerGradients;
-                
-                this.averageGradient[layer][i] += this.gradient[layer][i];
-            }
+            this.averageGradient[layer] = Math.add(this.averageGradient[layer], this.gradient[layer]);
         }
     }
     
@@ -116,7 +85,7 @@ class NeuralNetwork {
                 this.network[layer][i].setBias(newBias);
     
                 for (let wi = 0, numWeights = this.network[layer][i].getNoWeights(); wi < numWeights; ++wi) {
-                    let newWeightValue = this.network[layer][i].getWeight(wi) - (costGradient * this.activation[layer - 1][wi]);
+                    let newWeightValue = this.network[layer][i].getWeightAt(wi) - (costGradient * this.activation[layer - 1][wi]);
                     this.network[layer][i].setWeight(wi, newWeightValue);
                 }
             }
@@ -126,24 +95,7 @@ class NeuralNetwork {
     setLearningRate(value) {
         this.learningRate = value;
     }
-    // ---------------------- GETTERS -----------------------
-    getLayerActivationArr(layerIndex, activFunction) {
-        if (layerIndex == 0) {
-            return this.network[0];
-        }
-
-        if (activFunction == "sigmoid") {
-            return this.sigmoidActivations[layerIndex];
-        }
-
-        let numNeurons = this.network[layerIndex].length;
-        let activationsArr = new Array(numNeurons);
-        for (let i = 0; i < numNeurons; ++i) {
-            activationsArr[i] = this.network[layerIndex][i].getWeightedSum();
-        }
-        return activationsArr;
-    }
-
+    // ---------------------- Utils -----------------------
     predict() {
         let digitPrediction = -1, maxAct = 0;
     

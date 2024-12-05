@@ -30,7 +30,7 @@ class Neuron {
         return this.weightedSum;
     }
 
-    getWeight(index) {
+    getWeightAt(index) {
         return this.w[index];
     }
 
@@ -40,6 +40,10 @@ class Neuron {
 
     getNoWeights() {
         return this.numWeights;
+    }
+
+    getWeights() {
+        return this.w;
     }
 // --------- Setters -----------
     setWeight(index, value) {
