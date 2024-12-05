@@ -18,7 +18,7 @@ let learningRate = 0.02;
 let numEpoch = 1;
 let inputDim = noPixels ** 2;
 let outputDim = 10;
-let numHidLayers = 2;
+let numOfLayers = 3;
 
 //-------------------------------------- LOADING DATASET ---------------------------------------
 let trainImages = new Array(), trainLabels = new Array();
@@ -33,7 +33,11 @@ function setup() {
     canvas = createCanvas(imgWidth + 1, imgWidth + 1);
     centerCanvas(canvas, windowWidth, width, windowHeight, height);
     
-    let NN = new NeuralNetwork(inputDim, outputDim, numHidLayers, learningRate);
+    let NN = new NeuralNetwork(outputDim, numOfLayers, learningRate);
+    
+    NN.initializeLayer(1, 16, inputDim, ReLU); // HidL1
+    NN.initializeLayer(2, 16, 16, ReLU); // HidL2 
+    NN.initializeLayer(3, outputDim, 16, ReLU); // OutL
     
     resetGridButton = createButton("resetCanvas");
     resetGridButton.mouseClicked(
@@ -56,7 +60,7 @@ function setup() {
     predictionButton.mouseClicked(
         function() {
             let input = flatten(grid.getGrid());
-            NN.feedForward(input, ReLU);
+            NN.feedForward(input);
             NN.computeCaseProb();
             NN.predict();
             console.log(NN);
