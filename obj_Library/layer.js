@@ -1,3 +1,4 @@
+// Ce scop mai are sa folosesc obiectul neuron, daca pot salva la un layer matricea Weights s.a.m.d ?
 class Layer {
     constructor(numNeurons, connectionsToPrevL, activFunction = null) {
         this.neuronArr = new Array(numNeurons);
@@ -20,9 +21,9 @@ class Layer {
     }
 
     computeActivation(weightedSum) {
-        this.activationMatrix = Math.map(weightedSum, this.activationFunction);
+        this.activationMatrix = math.map(weightedSum, this.activationFunction);
     }
-
+    // ----------------- GETTERS ---------------------------
     getWeightsMatrix() {
         return this.weightsMatrix;
     }
@@ -34,10 +35,13 @@ class Layer {
     getActivationMatrix() {
         return this.activationMatrix;
     }
-
+    // ----------------------- SETTERS ----------------------
+    
     setActivations(activArr) {
         this.activationMatrix = activArr;
     }
-    // update
-    // get activations
+
+    setBiasesMatrix(newMatrix) {
+        this.biasesMatrix = newMatrix;
+    }
 }
