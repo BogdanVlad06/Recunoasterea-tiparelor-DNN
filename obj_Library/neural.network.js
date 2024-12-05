@@ -6,11 +6,9 @@ class NeuralNetwork {
         this.learningRate = learningRate; 
         this.label;
 
-        this.activation = new Array(this.numHiddenLayers + 2);
-
         this.network = new Array(this.numHiddenLayers + 2);
+        
         this.averageGradient = new Array(this.numHiddenLayers + 2);
-                
         this.gradient = new Array(this.numHiddenLayers + 2);
 
         this.caseProbability = new Array(this.outputSize); 
@@ -20,10 +18,10 @@ class NeuralNetwork {
 
     initializeLayer(index, size, connections, activFunction) {
         this.network[index] = new Layer(size, connections, activFunction);
-        this.averageGradient[index] = new Array(numNeurons).fill(0);
+        this.averageGradient[index] = new Array(size).fill(0);
     }
     
-    feedForwardUsingMatrix(input) {
+    feedForward(input) { 
         this.network[0] = new Layer(0, 0);
         this.network[0].setActivations(input);
 
@@ -59,37 +57,33 @@ class NeuralNetwork {
     backpropagate(label, actFunctionDerivate) {
         this.gradient[this.numHiddenLayers + 1] = this.caseProbability;
         this.gradient[this.numHiddenLayers + 1][label] -= 1;
-        this.averageGradient[this.numHiddenLayers + 1] = Math.add(this.averageGradient[this.numHiddenLayers + 1], this.gradient[this.numHiddenLayers + 1]);
+        this.averageGradient[this.numHiddenLayers + 1] = math.add(this.averageGradient[this.numHiddenLayers + 1], this.gradient[this.numHiddenLayers + 1]);
         
         for (let layer = this.numHiddenLayers; layer > 0; --layer) {
-            let prevLayerDeltaGradients_matrix = Math.multiply(this.gradient[layer + 1], this.network[layer + 1].getWeightsMatrix()),
+            let prevLayerDeltaGradients_matrix = math.multiply(this.gradient[layer + 1], this.network[layer + 1].getWeightsMatrix()),
                 derivateActivation_matrix = this.network[layer].getActivationMatrix().map(actFunctionDerivate);
-            this.gradient[layer] = Math.multiply(derivateActivation_matrix, prevLayerDeltaGradients_matrix)
+            this.gradient[layer] = math.multiply(derivateActivation_matrix, prevLayerDeltaGradients_matrix)
             
-            this.averageGradient[layer] = Math.add(this.averageGradient[layer], this.gradient[layer]);
+            this.averageGradient[layer] = math.add(this.averageGradient[layer], this.gradient[layer]);
         }
     }
     
     update(numBackporpagations) {
+        this.averageGradient = math.multiply(this.averageGradient, this.learningRate / numBackporpagations);
+        
         for (let layer = 1; layer < this.numHiddenLayers + 2; ++ layer) {
-            let layerSize = this.network[layer].length;
-            // update neuron(l)(i) weights
-            for (let i = 0; i < layerSize; ++i) {
-                this.averageGradient[layer][i] /= numBackporpagations; // calculez media aritmetica a gradientelor acumulate in backprop-urile unei Epoch
-                
-                let costGradient = this.learningRate * this.averageGradient[layer][i];
-                
-                this.averageGradient[layer][i] = 0; // resetez gradientul mediei aritmetice pt urm Epoch
-
-                let newBias = this.network[layer][i].getBias() - costGradient;
-                this.network[layer][i].setBias(newBias);
-    
-                for (let wi = 0, numWeights = this.network[layer][i].getNoWeights(); wi < numWeights; ++wi) {
-                    let newWeightValue = this.network[layer][i].getWeightAt(wi) - (costGradient * this.activation[layer - 1][wi]);
-                    this.network[layer][i].setWeight(wi, newWeightValue);
-                }
-            }
+            let newBiasesMatrix = math.substract(this.network[layer].getBiasesMatrix, 
+                                                 this.averageGradient[layer]); 
+            
+            this.network[layer].setBiasesMatrix(newBiasesMatrix);
+            
+            let newWeightsMatrix = math.substract(this.network[layer].getWeightsMatrix, 
+                                                  math.multiply(this.averageGradient[layer], 
+                                                                this.network[layer].getActivationMatrix()));
+                                                                
+            this.network[layer].setWeightsMatrix(newWeightsMatrix);
         }
+        this.averageGradient = this.averageGradient.map(row => row.map(() => 0));
     }
     // ---------------------- SETTER -----------------------
     setLearningRate(value) {
