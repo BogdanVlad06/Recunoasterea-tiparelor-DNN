@@ -115,7 +115,8 @@ class Layer {
     }
 
     setWeightsArr(newWeightsArr) {
-        this.biasesArr = newWeightsArr;
+        this.weightsArr = newWeightsArr;
+
     }
 
     resetAvgGradientArr() {

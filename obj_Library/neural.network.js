@@ -109,7 +109,9 @@ class NeuralNetwork {
             testLoss += this.calculateLoss(label);
         }
         let accuracy = correctPredictions / numInputs;
+        testLoss /= numInputs;
         updateMetrics(testLoss, accuracy);
+        console.log("total: ", numInputs, "; guessed: ", correctPredictions);
     }
 
     train(decay, inputsArr, labelsArr, numCycles, batchSize = 10) {

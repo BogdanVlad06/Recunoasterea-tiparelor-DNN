@@ -15,7 +15,7 @@ let PredictionText;
 
 //---------------------------------- NN parameters ----------------------------------
 let learningRate = 0.02;
-let numEpoch = 35;
+let numEpoch = 5;
 let inputDim = noPixels ** 2;
 let outputDim = 10;
 let numOfLayers = 3;
@@ -81,7 +81,7 @@ function setup() {
     saveButton = createButton("Save");
     saveButton.mouseClicked(
         function() {
-            NN.saveNetworkConfigToFile("obj_Library/SavedNetworkConfig.json");
+            NN.saveNetworkConfigToFile("SavedNetworkConfig.json");
         }
     )
 
