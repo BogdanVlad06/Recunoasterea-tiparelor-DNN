@@ -1,30 +1,32 @@
-//---------------------------------- MINST Dataset table conversion ----------------------------------
+//---------------------------------- MNIST Dataset table conversion ----------------------------------
 //IMPORTANT!!! coordonatele carteziene(x, y) in p5js canvas sunt INVERSATE x -> y si y -> x.
 // din acest motiv voi schimba logicile astfel incat coord x, y la care ma voi referi in cod vor fi corect logic
 // in alte cuvinte inversez alocuri;
 
-//---------------------------------- MINST Dataset table conversion ---------------------------------
-let trainData;
+//---------------------------------- MNIST Dataset table conversion ---------------------------------
+let trainData, testData;
 //---------------------------------- Variables ----------------------------------
 let noPixels = 28, imgWidth = 15 * noPixels;
 let grid = new Grid(noPixels, imgWidth);
 let canvas;
 // ----------------------- Buttons ---------------------------
-let predictionButton, resetGridButton, trainButton, saveButton, loadButton;
+let predictionButton, resetCanvasButton, testButton, trainButton, saveButton, loadButton;
 let PredictionText;
 
 //---------------------------------- NN parameters ----------------------------------
 let learningRate = 0.02;
-let numEpoch = 1;
+let numEpoch = 35;
 let inputDim = noPixels ** 2;
 let outputDim = 10;
 let numOfLayers = 3;
 
 //-------------------------------------- LOADING DATASET ---------------------------------------
 let trainImages = new Array(), trainLabels = new Array();
+let testImages = new Array(), testLabels = new Array();
 
 function preload() {
-    trainData = loadTable("MINST_dataset/mnist_train.csv", "csv", "header");
+    trainData = loadTable("MNIST_dataset/mnist_train.csv", "csv", "header");
+    testData = loadTable("MNIST_dataset/mnist_test.csv", "csv", "header");
 }
 
 //---------------------------------- Program ----------------------------------
@@ -39,20 +41,26 @@ function setup() {
     NN.initializeLayer(2, 16, 16, ReLU); // HidL2 
     NN.initializeLayer(3, outputDim, 16, ReLU); // OutL
     
-    resetGridButton = createButton("resetCanvas");
-    resetGridButton.mouseClicked(
+    resetCanvasButton = createButton("reset Canvas");
+    resetCanvasButton.mouseClicked(
         function() {
             grid = new Grid(noPixels, imgWidth);
         }
-    ) 
+    );
 
     trainButton = createButton("train");
     trainButton.mouseClicked(
         function() {
-            let networkTrainer = new Trainer(NN, learningRate, 0.05);
-            networkTrainer.train(trainImages, trainLabels, numEpoch);
+            NN.train(0.05, trainImages, trainLabels, numEpoch);
         }
-    ) 
+    );
+
+    testButton = createButton("test");
+    testButton.mouseClicked(
+        function() {
+            NN.test(testImages, testLabels);
+        }
+    );
 
     predictionButton = createButton('Predict');
     PredictionText = createDiv();
@@ -114,12 +122,23 @@ function processMNISTdata() {
         // Rest are pixel values
         let image = row.slice(1).map(x => Number(x) / 255);
         trainImages.push(image);
-      }
+    }
+    for (let i = 0; i < testData.getRowCount(); i++) {
+        let row = testData.getRow(i).arr;
+    
+        // First value is the label
+        let label = Number(row[0]);
+        testLabels.push(label);
+    
+        // Rest are pixel values
+        let image = row.slice(1).map(x => Number(x) / 255);
+        testImages.push(image);
+    }
 }
 
-function updateMetrics(epochLoss, accuracy) {
-    if (epochLoss != 0) {
-        lossText.html("Loss: " + epochLoss.toFixed(4));
+function updateMetrics(testLoss, accuracy) {
+    if (testLoss != 0) {
+        lossText.html("Loss: " + testLoss.toFixed(4));
         accuracyText.html("Accuracy: " + (accuracy * 100).toFixed(2) + "%");
     }
 }
