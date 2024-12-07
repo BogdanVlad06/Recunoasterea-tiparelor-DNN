@@ -56,7 +56,6 @@ class NeuralNetwork {
         this.network[this.numHiddenLayers + 1].updateAvgGradientArr();
         
         for (let layer = this.numHiddenLayers; layer > 0; --layer) {
-            console.log(layer);
             let actFunctionDerivate = derivate(this.network[layer].getActivationFunction());
             let delta_matrix = math.multiply(math.transpose(this.network[layer + 1].getWeightsMatrix()), this.network[layer + 1].getGradientMatrix());
             let derivateAct_Marix = this.network[layer].getActivationMatrix().map(actFunctionDerivate);
@@ -64,27 +63,30 @@ class NeuralNetwork {
             let computedGradient_matrix = math.dotMultiply(delta_matrix, derivateAct_Marix);
             
             this.network[layer].setGradientArrFromMatrix(computedGradient_matrix);
-            console.log(this.network[layer].getGradientArr());
             this.network[layer].updateAvgGradientArr();
         }
     }
     
     update(numBackporpagations) {
-        this.averageGradient = math.multiply(this.averageGradient, this.learningRate / numBackporpagations);
+        let denominatorForAvgGradientCalculus = this.learningRate / numBackporpagations;
         
         for (let layer = 1; layer < this.numHiddenLayers + 2; ++ layer) {
-            let newBiasesMatrix = math.substract(this.network[layer].getBiasesMatrix, 
-                                                 this.averageGradient[layer]); 
+            this.network[layer].computeAvgGradientArr(denominatorForAvgGradientCalculus);
+
+            let error_matrix = this.network[layer].getAvgGradientMatrix();
+            let biases_matrix = this.network[layer].getBiasesMatrix();
+            let weights_matrix = this.network[layer].getWeightsMatrix();
+            let prev_activation_matrix = this.network[layer - 1].getActivationMatrix();
             
-            this.network[layer].setBiasesMatrix(newBiasesMatrix);
+            let newBiasesMatrix = math.subtract(biases_matrix, error_matrix);
             
-            let newWeightsMatrix = math.substract(this.network[layer].getWeightsMatrix, 
-                                                  math.multiply(this.averageGradient[layer], 
-                                                                this.network[layer].getActivationMatrix()));
-                                                                
-            this.network[layer].setWeightsMatrix(newWeightsMatrix);
+            this.network[layer].setBiasesArrFromMatrix(newBiasesMatrix);
+            let weightGradient_matrix = math.multiply(error_matrix, math.transpose(prev_activation_matrix));
+            let newWeightsMatrix = math.subtract(weights_matrix, weightGradient_matrix);
+
+            this.network[layer].setWeightsArrFromMatrix(newWeightsMatrix);
+            this.network[layer].resetAvgGradientArr();
         }
-        this.averageGradient = this.averageGradient.map(row => row.map(() => 0));
     }
     // ---------------------- SETTER -----------------------
     setLearningRate(value) {
@@ -109,7 +111,7 @@ class NeuralNetwork {
                     const index = shuffledIndices[i];
                     const input = inputsArr[index];
                     const label = labelsArr[index];
-        
+                    
                     this.feedForward(input);
                     this.computeCaseProb();
                     this.predict();
