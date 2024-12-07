@@ -7,9 +7,6 @@ class NeuralNetwork {
         this.label;
 
         this.network = new Array(this.numHiddenLayers + 2);
-        
-        this.averageGradient = new Array(this.numHiddenLayers + 2);
-        this.gradient = new Array(this.numHiddenLayers + 2);
 
         this.caseProbability = new Array(this.outputSize); 
         this.prediction = -1;
@@ -18,7 +15,6 @@ class NeuralNetwork {
 
     initializeLayer(index, size, connections, activFunction) {
         this.network[index] = new Layer(size, connections, activFunction);
-        this.averageGradient[index] = new Array(size).fill(0);
     }
     
     feedForward(input) {  // Works!
@@ -52,25 +48,24 @@ class NeuralNetwork {
         return loss;
     }
     
-    backpropagate(label) {
-        this.gradient[this.numHiddenLayers + 1] = this.caseProbability;
-        console.log(this.gradient[this.numHiddenLayers + 1]);
-        this.gradient[this.numHiddenLayers + 1][label] -= 1;
-        this.averageGradient[this.numHiddenLayers + 1] = math.add(this.averageGradient[this.numHiddenLayers + 1], this.gradient[this.numHiddenLayers + 1]);
+    backpropagate(label) { // works !
+        let gradArr = this.caseProbability;
+        gradArr[label] -= 1;
+    
+        this.network[this.numHiddenLayers + 1].setGradientArr(gradArr);
+        this.network[this.numHiddenLayers + 1].updateAvgGradientArr();
         
         for (let layer = this.numHiddenLayers; layer > 0; --layer) {
             console.log(layer);
             let actFunctionDerivate = derivate(this.network[layer].getActivationFunction());
-            console.log("gradiente ", math.size(this.gradient[layer + 1]));
-            console.log("W_Matrix", math.size(this.network[layer + 1].getWeightsMatrix()));
+            let delta_matrix = math.multiply(math.transpose(this.network[layer + 1].getWeightsMatrix()), this.network[layer + 1].getGradientMatrix());
+            let derivateAct_Marix = this.network[layer].getActivationMatrix().map(actFunctionDerivate);
+            //Hadamard product (element-wise multiplication) (both column vectors)
+            let computedGradient_matrix = math.dotMultiply(delta_matrix, derivateAct_Marix);
             
-            let prevLayerDeltaGradients_matrix = math.multiply(this.gradient[layer + 1], this.network[layer + 1].getWeightsMatrix()),
-                derivateActivation_matrix = this.network[layer].getActivationMatrix().map(actFunctionDerivate);
-            
-                console.log("derivateMatrix " , math.size(derivateActivation_matrix), "prevL " , math.size(prevLayerDeltaGradients_matrix));
-            this.gradient[layer] = math.multiply(derivateActivation_matrix, prevLayerDeltaGradients_matrix)
-            
-            this.averageGradient[layer] = math.add(this.averageGradient[layer], this.gradient[layer]);
+            this.network[layer].setGradientArrFromMatrix(computedGradient_matrix);
+            console.log(this.network[layer].getGradientArr());
+            this.network[layer].updateAvgGradientArr();
         }
     }
     
