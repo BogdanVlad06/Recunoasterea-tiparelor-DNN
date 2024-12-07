@@ -1,4 +1,4 @@
-// ramane sa realizez antrenarea retelei folosindu-ma de datele MINST
+// ramane sa realizez antrenarea retelei folosindu-ma de datele MNIST
 class NeuralNetwork {
     constructor(outputDim, numOfLayers, learningRate) {
         this.numHiddenLayers = numOfLayers - 1;
@@ -93,6 +93,26 @@ class NeuralNetwork {
         this.learningRate = value;
     }
     // ---------------------- Utils -----------------------
+    test(inputsArr, labelsArr) {
+        let numInputs = inputsArr.length;
+        let testLoss = 0, correctPredictions = 0;
+        for (let index = 0; index < numInputs; ++index) {
+            let input = inputsArr[index];
+            let label = labelsArr[index];
+
+            this.feedForward(input);
+            this.computeCaseProb();
+            this.predict();
+
+            let prediction = this.getPrediction();
+            if (prediction == label) correctPredictions++;  
+
+            testLoss += this.calculateLoss(label);
+        }
+        let accuracy = correctPredictions / numInputs;
+        updateMetrics(testLoss, accuracy);
+    }
+
     train(decay, inputsArr, labelsArr, numCycles, batchSize = 10) {
         const numInputs = inputsArr.length;
         
@@ -131,7 +151,6 @@ class NeuralNetwork {
                 epochLoss += batchLoss / batchSize;
             }
             let accuracy = correctPredictions / numInputs;
-            updateMetrics(epochLoss / (numInputs / batchSize), accuracy);
             console.log(`Epoch ${epoch + 1} Loss: ${epochLoss / (numInputs / batchSize)}, Accuracy: ${(accuracy * 100).toFixed(2)}%`);
         }
     }
