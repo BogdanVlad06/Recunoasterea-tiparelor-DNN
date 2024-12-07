@@ -1,4 +1,3 @@
-// ramane sa realizez antrenarea retelei folosindu-ma de datele MNIST
 class NeuralNetwork {
     constructor(outputDim, numOfLayers, learningRate) {
         this.numHiddenLayers = numOfLayers - 1;
@@ -171,43 +170,37 @@ class NeuralNetwork {
     getPrediction() {
         return this.prediction;
     }
-
+    // ------------------------------ SAVE / LOAD -----------------------------------------
     saveNetworkConfigToFile(fileName = "network_config.json") {
         let data = {
-            architecture: []
+            layers: []
         };
-
-        for(let layer = 1; layer < this.numHiddenLayers + 2; ++layer) {
-            let layerData = [];
-            let size = this.network[layer].length;
-            for (let i = 0; i < size; ++i) {
-                layerData.push({
-                    weights: this.network[layer][i].w,
-                    bias: this.network[layer][i].b
-                });
-            }
-            data.architecture.push(layerData);
+    
+        for (let i = 1; i <= this.numHiddenLayers + 1; ++i) {
+            let layer = this.network[i]; // Assuming `this.layers` holds the Layer objects
+            data.layers.push({
+                weights: layer.getWeightsArr(), // Save weights as a 2D array
+                biases: layer.getBiasesArr()   // Save biases as a 1D array
+            });
         }
+    
         let json = JSON.stringify(data, null, 2);
-        //let blob = new Blob([json], { type: 'application/json' });
-        //saveAs(blob, 'obj_Library/SavedNetworkConfig.json');
-        saveJSON(data, "networkConfig.json");
+        saveJSON(data, fileName);
     }
-
-    loadNetworkConfigFromFile(file){ // trb sa o fac sa poata incarca indif de numaru de layere si nr de neuroni
-        let data = JSON.parse(file.data);
-        const {architecture} = data;
-        let auxNetwork = [];
-        auxNetwork.push(new Array(784));
-        for (let layer = 1; layer <= this.numHiddenLayers + 2; ++layer) {
-            let layerData = architecture[layer - 1];
-            auxNetwork.push(new Array(layerData.length));
-            for (let i = 0; i < layerData.length; ++i) {
-                auxNetwork[layer][i] = new Neuron(auxNetwork[layer - 1].length);
-                auxNetwork[layer][i].w = layerData[i].weights;
-                auxNetwork[layer][i].b = layerData[i].bias;
+    // trb sa o fac sa poata incarca indif de numaru de layere si nr de neuroni ? 
+    loadNetworkConfigFromFile(fileName = "network_config.json") {
+        loadJSON(fileName, (data) => {
+            for (let i = 1; i <= this.numHiddenLayers + 1; ++i) {
+                let layerData = data.layers[i - 1]; // JSON layers are 0-indexed
+                
+                if (!this.network[i]) {
+                    console.error(`Layer ${i} not found in network.`);
+                    continue;
+                }
+                // Set weights and biases from the saved data
+                this.network[i].setBiasesArr(layerData.biases);
+                this.network[i].setWeightsArr(layerData.weights);
             }
-        }
-        this.network = auxNetwork;
-    } // ma gandesc sa creez un network aux care sa inlocuiasca networku curent
+        });
+    }
 }
