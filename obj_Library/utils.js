@@ -16,6 +16,17 @@ function flatten(grid) {
     return flattenGrid;
 }
 
+function MNISTto2DArr(flatten2DArr) {
+    let size = Math.sqrt(flatten2DArr.length);
+    console.log(size);
+    let bidimArr = mk2DArr(size, size);
+    for (let k = 0; k < flatten2DArr.length; ++k) {
+        let i = Math.floor(k / size), j = k % size;
+        bidimArr[i][j] = flatten2DArr[k];
+    }
+    return bidimArr;
+}
+
 function logArr(arr) {
     for (let i = 0; i < arr.length; ++i) {
         console.log(arr[i] + ' ');

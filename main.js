@@ -9,13 +9,15 @@ let trainData, testData;
 let noPixels = 28, imgWidth = 15 * noPixels;
 let grid = new Grid(noPixels, imgWidth);
 let canvas;
+let brushHardness = 0.15;   
 // ----------------------- Buttons ---------------------------
-let predictionButton, resetCanvasButton, testButton, trainButton, saveButton, loadButton;
+let predictionButton, resetCanvasButton, testButton, trainButton, saveButton, loadButton, loadRandomTestImgButton;
 let PredictionText;
 
+let brushSlider;
 //---------------------------------- NN parameters ----------------------------------
-let learningRate = 0.02;
-let numEpoch = 5;
+let learningRate = 0.03;
+let numEpoch = 35;
 let inputDim = noPixels ** 2;
 let outputDim = 10;
 let numOfLayers = 3;
@@ -83,26 +85,40 @@ function setup() {
         function() {
             NN.saveNetworkConfigToFile("SavedNetworkConfig.json");
         }
-    )
+    );
 
     loadButton = createButton("Load");
     loadButton.mouseClicked(
         function() {
             NN.loadNetworkConfigFromFile("obj_Library/SavedNetworkConfig.json");
         }
-    )
+    );
 
+    loadRandomTestImgButton = createButton("Random test image");
+    loadRandomTestImgButton.mouseClicked(
+        function() {
+            let randomIndex = Math.floor(Math.random() * testImages.length);
+            console.log(randomIndex, testLabels[randomIndex]);
+            let bidimArr = MNISTto2DArr(testImages[randomIndex]);
+            grid.setGrid(bidimArr);
+        }
+    );
+
+    brushSlider = createSlider(0.01, 0.5, brushHardness, 0.01);
+    brushSlider.size(80);
+    
     lossText = createDiv("Loss: 0").style('font-size', '16px').position(10, height - 40);
     accuracyText = createDiv("Accuracy: 0%").style('font-size', '16px').position(10, height - 20);
 }
 
 function draw() {
     background(220);
+    brushHardness = brushSlider.value();
     grid.show();
 }
 
 function mouseDragged() { 
-    grid.colour(mouseY, mouseX); // mouseX se refera la Y (mergand pe axa oY) analog pt mouseY;
+    grid.colour(mouseY, mouseX, brushHardness); // mouseX se refera la Y (mergand pe axa oY) analog pt mouseY;
 }
 
 function windowResized() {
