@@ -16,8 +16,8 @@ let PredictionText;
 
 let brushSlider;
 //---------------------------------- NN parameters ----------------------------------
-let learningRate = 0.03;
-let numEpoch = 35;
+let learningRate = 0.09;
+let numEpoch = 25;
 let inputDim = noPixels ** 2;
 let outputDim = 10;
 let numOfLayers = 3;
@@ -31,13 +31,15 @@ function preload() {
     testData = loadTable("MNIST_dataset/mnist_test.csv", "csv", "header");
 }
 
+// ---------------------- NETWORK -----------------------
+let NN;
 //---------------------------------- Program ----------------------------------
 function setup() {
     processMNISTdata();
-    canvas = createCanvas(imgWidth + 1, imgWidth + 1);
+    canvas = createCanvas(imgWidth + 50, imgWidth + 50);
     centerCanvas(canvas, windowWidth, width, windowHeight, height);
     
-    let NN = new NeuralNetwork(outputDim, numOfLayers, learningRate);
+    NN = new NeuralNetwork(outputDim, numOfLayers, learningRate);
     
     NN.initializeLayer(1, 16, inputDim, ReLU); // HidL1
     NN.initializeLayer(2, 16, 16, ReLU); // HidL2 
@@ -53,7 +55,9 @@ function setup() {
     trainButton = createButton("train");
     trainButton.mouseClicked(
         function() {
-            NN.train(0.05, trainImages, trainLabels, numEpoch);
+            noLoop();
+            NN.train(learningRate, 0.04, trainImages, trainLabels, numEpoch, 24);
+            loop();
         }
     );
 
@@ -109,12 +113,48 @@ function setup() {
     
     lossText = createDiv("Loss: 0").style('font-size', '16px').position(10, height - 40);
     accuracyText = createDiv("Accuracy: 0%").style('font-size', '16px').position(10, height - 20);
+    windowResized();
+}
+
+function drawOutputLayer(outputValues) {
+    const squareSize = 20; // Size of each square
+    const spacing = 5; // Spacing between squares
+    const startX = imgWidth + 10; // Starting X position (to the right of the grid)
+    const startY = 10; // Starting Y position
+
+    for (let i = 0; i < outputValues.length; i++) {
+        const value = outputValues[i];
+        const fillHeight = value * squareSize; // Height of the filled part of the square
+
+        // Draw the square outline
+        noFill();
+        rect(startX, startY + i * (squareSize + spacing), squareSize, squareSize);
+
+        // Draw the filled part from bottom to top
+        fill(0); // Use a single color for the "liquid" effect
+        rect(startX, startY + i * (squareSize + spacing) + (squareSize - fillHeight), squareSize, fillHeight);
+
+        // Draw the corresponding digit next to the square
+        fill(0);
+        textSize(16);
+        text(i, startX + squareSize + 10, startY + i * (squareSize + spacing) + squareSize / 2 + 5);
+    }
 }
 
 function draw() {
-    background(220);
+    background(255);
     brushHardness = brushSlider.value();
     grid.show();
+    
+    let input = flatten(grid.getGrid());
+    NN.feedForward(input);
+    NN.computeCaseProb();
+    NN.predict();
+    PredictionText.html('Predicted: ' + NN.getPrediction());
+    PredictionText.position(canvas.x + (imgWidth / 2) - 60, canvas.y + imgWidth);
+    PredictionText.style('font-size', '32px');
+
+    drawOutputLayer(NN.getCaseProbabilities());
 }
 
 function mouseDragged() { 
@@ -123,8 +163,34 @@ function mouseDragged() {
 
 function windowResized() {
     centerCanvas(canvas, windowWidth, width, windowHeight, height);
-    predictionButton.position(canvas.x, canvas.y - 21);
-    PredictionText.position(canvas.x + (imgWidth / 2) - 60, canvas.y + imgWidth);
+    
+    // Reposition all buttons relative to the canvas
+    let xOffset = 0; 
+    resetCanvasButton.position(canvas.x + xOffset, canvas.y - 21);
+    xOffset += resetCanvasButton.width;
+
+    trainButton.position(canvas.x + xOffset, canvas.y - 21);
+    xOffset += trainButton.width;   
+
+    testButton.position(canvas.x + xOffset, canvas.y - 21);
+    xOffset += testButton.width;
+
+    saveButton.position(canvas.x + xOffset, canvas.y - 21);
+    xOffset += saveButton.width;
+
+    loadButton.position(canvas.x + xOffset, canvas.y - 21);
+    xOffset += loadButton.width;
+
+    loadRandomTestImgButton.position(canvas.x + xOffset, canvas.y - 21);
+    xOffset += loadRandomTestImgButton.width;
+
+    predictionButton.position(canvas.x + xOffset, canvas.y - 21);
+    xOffset += predictionButton.width;
+
+    PredictionText.position(canvas.x + xOffset, canvas.y - 21);
+    brushSlider.position(canvas.x, canvas.y - 42);
+    lossText.position(canvas.x , canvas.y + imgWidth + 10);
+    accuracyText.position(canvas.x, canvas.y + imgWidth + 30);
 }
 
 function processMNISTdata() {
