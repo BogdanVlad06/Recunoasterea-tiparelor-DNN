@@ -3,9 +3,10 @@ class NeuralNetwork {
         this.numHiddenLayers = numOfLayers - 1;
         this.outputSize = outputDim; 
         this.learningRate = learningRate; 
-        this.label;
+        this.trainingStop = false;
 
         this.network = new Array(this.numHiddenLayers + 2);
+        this.network[0] = new Layer(0, 0);
 
         this.caseProbability = new Array(this.outputSize); 
         this.prediction = -1;
@@ -17,7 +18,6 @@ class NeuralNetwork {
     }
     
     feedForward(input) {  // Works!
-        this.network[0] = new Layer(0, 0);
         this.network[0].setActivationsArr(input);
 
         let W_matrix, prevA_matrix, B_matrix, Z_matrix;
@@ -60,7 +60,6 @@ class NeuralNetwork {
             let derivateAct_Marix = this.network[layer].getActivationMatrix().map(actFunctionDerivate);
             //Hadamard product (element-wise multiplication) (both column vectors)
             let computedGradient_matrix = math.dotMultiply(delta_matrix, derivateAct_Marix);
-            
             this.network[layer].setGradientArrFromMatrix(computedGradient_matrix);
             this.network[layer].updateAvgGradientArr();
         }
@@ -91,6 +90,7 @@ class NeuralNetwork {
     setLearningRate(value) {
         this.learningRate = value;
     }
+
     // ---------------------- Utils -----------------------
     test(inputsArr, labelsArr) {
         let numInputs = inputsArr.length;
@@ -114,7 +114,11 @@ class NeuralNetwork {
         console.log("total: ", numInputs, "; guessed: ", correctPredictions);
     }
 
-    train(startingLearingValue, decay, inputsArr, labelsArr, numCycles, batchSize = 10) {
+    stopTraining(value) {
+        this.trainingStop = value;
+    }
+
+    /*async*/ train(startingLearingValue, decay, inputsArr, labelsArr, numCycles, batchSize = 10) {
         const numInputs = inputsArr.length;
         
         for (let epoch = 0; epoch < numCycles; ++epoch) {
@@ -125,6 +129,9 @@ class NeuralNetwork {
             const shuffledIndices = [...Array(numInputs).keys()].sort(() => Math.random() - 0.5);
             
             for (let startIdx = 0; startIdx < numInputs; startIdx += batchSize) {
+                if (this.trainingStop) {
+                    return;
+                }
                 // Accumulate gradients over the mini-batch
                 let batchLoss = 0;
                 
@@ -150,11 +157,14 @@ class NeuralNetwork {
                 this.update(batchSize);
 
                 epochLoss += batchLoss / batchSize;
+                //await new Promise(resolve => setTimeout(resolve, 0));
+
             }
             let accuracy = correctPredictions / numInputs;
             console.log(`Epoch ${epoch + 1} Loss: ${epochLoss / (numInputs / batchSize)}, Accuracy: ${(accuracy * 100).toFixed(2)}%`);
-            console.log(this.learningRate, decay, batchSize);
+            console.log(this.learningRate);
         }
+        console.log(this.learningRate, decay, batchSize);
     }
     
     predict() {

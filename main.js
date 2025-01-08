@@ -11,13 +11,15 @@ let grid = new Grid(noPixels, imgWidth);
 let canvas;
 let brushHardness = 0.15;   
 // ----------------------- Buttons ---------------------------
-let predictionButton, resetCanvasButton, testButton, trainButton, saveButton, loadButton, loadRandomTestImgButton;
+let predictionButton, resetCanvasButton, testButton, trainButton, stopButton, saveButton, loadButton, loadRandomTestImgButton;
 let PredictionText;
 
 let brushSlider;
 //---------------------------------- NN parameters ----------------------------------
-let learningRate = 0.09;
-let numEpoch = 25;
+let learningRate = 0.03;
+let learningRateDecay = 0.03;
+let numEpoch = 50;
+let miniBatchSize = 15;
 let inputDim = noPixels ** 2;
 let outputDim = 10;
 let numOfLayers = 3;
@@ -56,10 +58,16 @@ function setup() {
     trainButton.mouseClicked(
         function() {
             noLoop();
-            NN.train(learningRate, 0.04, trainImages, trainLabels, numEpoch, 24);
+            NN.stopTraining(false);
+            NN.train(learningRate, learningRateDecay, trainImages, trainLabels, numEpoch, miniBatchSize);
             loop();
         }
     );
+
+    stopButton = createButton("Stop Training");
+    stopButton.mouseClicked(function() {
+        NN.stopTraining(true);
+    });
 
     testButton = createButton("test");
     testButton.mouseClicked(
@@ -70,7 +78,6 @@ function setup() {
 
     predictionButton = createButton('Predict');
     PredictionText = createDiv();
-    predictionButton.position(canvas.x, canvas.y - 21);
     predictionButton.mouseClicked(
         function() {
             let input = flatten(grid.getGrid());
@@ -116,7 +123,7 @@ function setup() {
     windowResized();
 }
 
-function drawOutputLayer(outputValues) {
+function drawOutputLayer(outputValues) { // Visualize the output layer as a series of squares
     const squareSize = 20; // Size of each square
     const spacing = 5; // Spacing between squares
     const startX = imgWidth + 10; // Starting X position (to the right of the grid)
@@ -133,7 +140,6 @@ function drawOutputLayer(outputValues) {
         // Draw the filled part from bottom to top
         fill(0); // Use a single color for the "liquid" effect
         rect(startX, startY + i * (squareSize + spacing) + (squareSize - fillHeight), squareSize, fillHeight);
-
         // Draw the corresponding digit next to the square
         fill(0);
         textSize(16);
@@ -165,30 +171,38 @@ function windowResized() {
     centerCanvas(canvas, windowWidth, width, windowHeight, height);
     
     // Reposition all buttons relative to the canvas
-    let xOffset = 0; 
-    resetCanvasButton.position(canvas.x + xOffset, canvas.y - 21);
+    let xOffset = 0, yOffset = 21; 
+    resetCanvasButton.position(canvas.x + xOffset, canvas.y - yOffset);
     xOffset += resetCanvasButton.width;
 
-    trainButton.position(canvas.x + xOffset, canvas.y - 21);
+    trainButton.position(canvas.x + xOffset, canvas.y - yOffset);
     xOffset += trainButton.width;   
 
-    testButton.position(canvas.x + xOffset, canvas.y - 21);
+    testButton.position(canvas.x + xOffset, canvas.y - yOffset);
     xOffset += testButton.width;
 
-    saveButton.position(canvas.x + xOffset, canvas.y - 21);
+    saveButton.position(canvas.x + xOffset, canvas.y - yOffset);
     xOffset += saveButton.width;
 
-    loadButton.position(canvas.x + xOffset, canvas.y - 21);
+    loadButton.position(canvas.x + xOffset, canvas.y - yOffset);
     xOffset += loadButton.width;
 
-    loadRandomTestImgButton.position(canvas.x + xOffset, canvas.y - 21);
+    loadRandomTestImgButton.position(canvas.x + xOffset, canvas.y - yOffset);
     xOffset += loadRandomTestImgButton.width;
 
-    predictionButton.position(canvas.x + xOffset, canvas.y - 21);
+    predictionButton.position(canvas.x + xOffset, canvas.y - yOffset);
     xOffset += predictionButton.width;
 
-    PredictionText.position(canvas.x + xOffset, canvas.y - 21);
-    brushSlider.position(canvas.x, canvas.y - 42);
+    PredictionText.position(canvas.x + xOffset, canvas.y - yOffset);
+    xOffset = 0;
+    yOffset += 21;
+
+    brushSlider.position(canvas.x + xOffset, canvas.y - yOffset);
+    xOffset += resetCanvasButton.width;
+
+    stopButton.position(canvas.x + xOffset, canvas.y - yOffset);
+    xOffset += stopButton.width;
+    
     lossText.position(canvas.x , canvas.y + imgWidth + 10);
     accuracyText.position(canvas.x, canvas.y + imgWidth + 30);
 }
