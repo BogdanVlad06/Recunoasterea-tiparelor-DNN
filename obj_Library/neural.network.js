@@ -114,12 +114,12 @@ class NeuralNetwork {
         console.log("total: ", numInputs, "; guessed: ", correctPredictions);
     }
 
-    train(decay, inputsArr, labelsArr, numCycles, batchSize = 10) {
+    train(startingLearingValue, decay, inputsArr, labelsArr, numCycles, batchSize = 10) {
         const numInputs = inputsArr.length;
         
         for (let epoch = 0; epoch < numCycles; ++epoch) {
             let epochLoss = 0;
-            this.learningRate = this.learningRate / (1 + (decay * epoch));
+            this.learningRate = startingLearingValue / (1 + (decay * epoch));
             let correctPredictions = 0;
             // Shuffle data each epoch for better convergence
             const shuffledIndices = [...Array(numInputs).keys()].sort(() => Math.random() - 0.5);
@@ -153,6 +153,7 @@ class NeuralNetwork {
             }
             let accuracy = correctPredictions / numInputs;
             console.log(`Epoch ${epoch + 1} Loss: ${epochLoss / (numInputs / batchSize)}, Accuracy: ${(accuracy * 100).toFixed(2)}%`);
+            console.log(this.learningRate, decay, batchSize);
         }
     }
     
@@ -168,7 +169,12 @@ class NeuralNetwork {
         
         this.prediction = digitPrediction;
     }
-    
+
+    // ---------------------- GETTERS -----------------------
+    getCaseProbabilities() {
+        return this.caseProbability;
+    }
+
     getPrediction() {
         return this.prediction;
     }
