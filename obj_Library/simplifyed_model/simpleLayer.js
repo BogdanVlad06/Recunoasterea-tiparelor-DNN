@@ -20,7 +20,24 @@ class SmpLayer {
              math.multiply(delta, math.transpose(activToTheLeft))); // pt a obtine o matrice de NL x NL-1
     }
 
+    subtractFromWeights(valueMatrix) {
+        this.weights = math.subtract(this.weights, valueMatrix);
+    }
+
+    subtractFromBiases(valueMatrix) {
+        this.biases = math.subtract(this.biases, valueMatrix);
+    }
+
+// ---------------------------------- GETTERS -----------------------------------------
     getActivationFunction() {
         return this.activFunction;
+    }
+
+    getWeightsGradient() {
+        return this.avgWGradients;
+    }
+
+    getBiasesGradient() {
+        return this.avgBGradients;
     }
 }
