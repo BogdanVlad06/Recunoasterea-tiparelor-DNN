@@ -40,12 +40,24 @@ class SmpNetwork {
     }
 
     update(miniBatch, learningRate, trainingImages, trainingLabels) {
-        let getAvgGradientMatrix
+        // calculate avgGradient(undivided by batchsize)/layer
         for (let i = 0; i < miniBatch.length; ++i) {
-            // backpropagate
+            let index = miniBatch[i],
+                input = trainingImages[index],
+                label = trainingLabels[index];
+            this.backpropagate(input, label);
         }
-
-    }
+        // update-itself
+        for (let layerIndex = 1; layerIndex <= this.size; ++layerIndex) {
+            let currentLayer = this.network[layerIndex]
+                avgWGradients = currentLayer.getWeightsGradient() * learningRate / miniBatch.length,
+                avgBGradients = currentLayer.getBiasesGradient() * learningRate / miniBatch.length;
+            
+            currentLayer.subtractFromWeights(avgWGradients);
+            currentLayer.subtractFromBiases(avgBGradients);  
+        }
+        // evaluating 
+    }   
 
     backpropagate(input, label) {
         // forward pass
@@ -79,7 +91,7 @@ class SmpNetwork {
     costDerivative(outputActivations, label) {
         let y = math.matrix(math.zeros(10, 1)); // hot encoded
         y.set([label, 0], 1);
-        return math.multiply(math.substract(outputActivations, y), 2);
+        return math.multiply(math.subtract(outputActivations, y), 2);
     }
     ////////////////////////////////////////////////////////////////////////
     
