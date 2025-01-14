@@ -48,15 +48,16 @@ class Grid {
                 queue.shift();
                 let newVal = this.grid[cx][cy].getVal() + intensity;
                 this.grid[cx][cy].setVal(min(newVal, 1));
-
-                for (let i = 0; i < neighbour.length; ++i) {
-                    if (Math.random() > 0.25) {
-                        let nx = cx + neighbour[i].f, 
-                            ny = cy + neighbour[i].s,
-                            nIntensity = intensity * decay;
-                        if (this.inBounds(nx, ny) && marked[nx][ny] != 1) {
-                            queue.push({cx : nx, cy : ny, intensity : nIntensity}); // next
-                            marked[nx][ny] = 1;
+                if (newVal > 0.1) {
+                    for (let i = 0; i < neighbour.length; ++i) {
+                        if (Math.random() > 0.25) {
+                            let nx = cx + neighbour[i].f, 
+                                ny = cy + neighbour[i].s,
+                                nIntensity = intensity * decay;
+                            if (this.inBounds(nx, ny) && marked[nx][ny] != 1) {
+                                queue.push({cx : nx, cy : ny, intensity : nIntensity}); // next
+                                marked[nx][ny] = 1;
+                            }
                         }
                     }
                 }
