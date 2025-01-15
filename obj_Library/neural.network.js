@@ -93,6 +93,7 @@ class NeuralNetwork {
 
     // ---------------------- Utils -----------------------
     test(inputsArr, labelsArr) {
+        let struggles = new Array(10).fill(0);
         let numInputs = inputsArr.length;
         let testLoss = 0, correctPredictions = 0;
         for (let index = 0; index < numInputs; ++index) {
@@ -104,14 +105,17 @@ class NeuralNetwork {
             this.predict();
 
             let prediction = this.getPrediction();
-            if (prediction == label) correctPredictions++;  
-
+            if (prediction == label) {
+                correctPredictions++;  
+            } else {
+                ++struggles[label];
+            }
             testLoss += this.calculateLoss(label);
         }
         let accuracy = correctPredictions / numInputs;
         testLoss /= numInputs;
         updateMetrics(testLoss, accuracy);
-        console.log("total: ", numInputs, "; guessed: ", correctPredictions);
+        console.log("total: ", numInputs, "; guessed: ", correctPredictions, "struggled with: ", struggles);
     }
 
     stopTraining(value) {
