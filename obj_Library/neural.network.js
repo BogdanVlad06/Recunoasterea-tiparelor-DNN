@@ -192,6 +192,18 @@ class NeuralNetwork {
     getPrediction() {
         return this.prediction;
     }
+
+    getLayerWeights(layerIndex) {
+        return this.network[layerIndex].getWeightsArr();
+    }
+
+    getLayerBiases(layerIndex) {
+        return this.network[layerIndex].getBiasesArr();
+    }
+
+    getLayerActivation(layerIndex) {
+        return this.network[layerIndex].getActivationArr();
+    }
     // ------------------------------ SAVE / LOAD -----------------------------------------
     saveNetworkConfigToFile(fileName = "network_config.json") {
         let data = {

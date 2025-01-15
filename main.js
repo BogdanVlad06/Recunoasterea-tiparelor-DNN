@@ -38,7 +38,7 @@ let NN;
 //---------------------------------- Program ----------------------------------
 function setup() {
     processMNISTdata();
-    canvas = createCanvas(imgWidth + 50, imgWidth + 50);
+    canvas = createCanvas(imgWidth + 400, imgWidth + 100);
     centerCanvas(canvas, windowWidth, width, windowHeight, height);
     
     NN = new NeuralNetwork(outputDim, numOfLayers, learningRate);
@@ -123,28 +123,80 @@ function setup() {
     windowResized();
 }
 
-function drawOutputLayer(outputValues) { // Visualize the output layer as a series of squares
-    const squareSize = 20; // Size of each square
-    const spacing = 5; // Spacing between squares
-    const startX = imgWidth + 10; // Starting X position (to the right of the grid)
-    const startY = 10; // Starting Y position
+function drawNetwork() { // Visualize the output layer as a series of squares
+    const spacingVal = 5;
+    const widthVal = 5
+    let squareSize = 20; // Size of each square
+    let spacing = spacingVal; // Spacing between squares
+    let startX = 10 + imgWidth; // Starting X position (to the right of the grid)
+    let startY = 10; // Starting Y position
 
-    for (let i = 0; i < outputValues.length; i++) {
-        const value = outputValues[i];
-        const fillHeight = value * squareSize; // Height of the filled part of the square
+    for (let i = 1; i <= numOfLayers; i++) {
+        let layerA;
+        if (i == 3) {
+            layerA = NN.getCaseProbabilities();
+        } else {
+            layerA = NN.getLayerActivation(i);
+        }
+        let squareX = startX + widthVal * (i - 1) * (squareSize + spacing);
+        spacing = spacingVal;
+        if (i == numOfLayers) {
+            spacing = 30;
+        } 
 
-        // Draw the square outline
-        noFill();
-        rect(startX, startY + i * (squareSize + spacing), squareSize, squareSize);
-
-        // Draw the filled part from bottom to top
-        fill(0); // Use a single color for the "liquid" effect
-        rect(startX, startY + i * (squareSize + spacing) + (squareSize - fillHeight), squareSize, fillHeight);
-        // Draw the corresponding digit next to the square
-        fill(0);
-        textSize(16);
-        text(i, startX + squareSize + 10, startY + i * (squareSize + spacing) + squareSize / 2 + 5);
+        for (let j = 0; j < layerA.length; j++) {
+            let val = Math.min(1, layerA[j]);
+            let volume = val * squareSize;
+            let squareY = startY + j * (squareSize + spacing);
+           
+            noFill();
+           
+            // Draw the square outline
+            stroke('purple');
+            strokeWeight(1.5);
+            rect(squareX, squareY, squareSize, squareSize);
+            strokeWeight(1);
+            stroke(0);
+            // Draw the filled part from bottom to top
+            fill(0); // Use a single color for the "liquid" effect
+            rect(squareX, squareY + (squareSize - volume), squareSize, volume);
+            if (i == numOfLayers) {
+                fill(0);
+                textSize(16);
+                text(j, squareX + (squareSize + spacing), squareY + squareSize / 2 + 5);
+            }
+        }
     }
+    // Visualize weights
+    for (let i = 1; i < numOfLayers; i++) {
+        spacing = spacingVal;
+        let currentLayer = NN.network[i + 1];
+        let nextLayer = NN.network[i + 1];
+        let currentLayerA = currentLayer.getActivationArr();
+        let nextLayerA = nextLayer.getActivationArr();
+        let weights = currentLayer.getWeightsArr();
+        
+        let currentSquareX = startX + widthVal * (i - 1) * (squareSize + spacing);
+        let nextSquareX = startX + widthVal * i * (squareSize + spacing);
+        
+        if (i + 1 == numOfLayers) {
+            spacing = 30;
+        }
+        for (let j = 0; j < weights[1].length; j++) {
+            let currentSquareY = startY + j * (squareSize + spacingVal);
+            for (let k = 0; k < nextLayerA.length; k++) {
+                let nextSquareY = startY + k * (squareSize + spacing);
+                let weight = weights[k][j];
+                strokeWeight(Math.abs(weight) * 2); // Line thickness represents weight magnitude
+                stroke(weight > 0 ? 'green' : 'red'); // Color represents positive or negative weight
+                line(currentSquareX + squareSize, currentSquareY + squareSize / 2, nextSquareX, nextSquareY + squareSize / 2);
+            }
+        }
+    }
+
+    // Reset stroke settings to default
+    strokeWeight(1);
+    stroke(0);
 }
 
 function draw() {
@@ -160,7 +212,7 @@ function draw() {
     PredictionText.position(canvas.x + (imgWidth / 2) - 60, canvas.y + imgWidth);
     PredictionText.style('font-size', '32px');
 
-    drawOutputLayer(NN.getCaseProbabilities());
+    drawNetwork();
 }
 
 function mouseDragged() { 
