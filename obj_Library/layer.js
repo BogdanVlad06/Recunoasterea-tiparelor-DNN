@@ -1,7 +1,5 @@
-// Ce scop mai are sa folosesc obiectul neuron, daca pot salva la un layer matricea Weights s.a.m.d ?
 class Layer {
     constructor(numNeurons, connectionsToPrevL, activFunction = null) {
-        this.neuronArr = new Array(numNeurons);
         this.weightsArr = new Array(numNeurons);
         this.biasesArr = new Array(numNeurons);
         this.activationArr;
@@ -11,18 +9,8 @@ class Layer {
         
 
         this.genLayer(numNeurons, connectionsToPrevL);
-    }
-    
-    /*genLayer(numNeurons, connectionsToPrevL) { // works!
-        for (let i = 0; i < numNeurons; ++i) {
-            this.neuronArr[i] = new Neuron(connectionsToPrevL);
-
-            this.weightsArr[i] = this.neuronArr[i].getWeights();
-            this.biasesArr[i] = this.neuronArr[i].getBias();
-        }
-    }*/
-    // ------------------- ALTERNATIVE WAY WITHOUT NEURON OBJECTS -----------------------------
-    genLayer(numNeurons, connectionsToPrevL) {
+    }    
+    genLayer(numNeurons, connectionsToPrevL) { 
         const stdDev = Math.sqrt(2 / connectionsToPrevL); // He Initialization
         this.weightsArr = Array.from({ length: numNeurons }, () =>
             Array.from({ length: connectionsToPrevL }, () => (Math.random() * 2 - 1) * stdDev)

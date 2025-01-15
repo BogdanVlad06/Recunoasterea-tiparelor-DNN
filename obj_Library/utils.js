@@ -77,6 +77,14 @@ function dataPixelToValue(pixelColorArr) {
     }
     return convertedValuesArr;
 }
+
+function outputDigit(output) {
+    // Convert the matrix to an array
+    let flatData = output.flat();
+
+    // Find the index of the maximum value
+    return flatData.reduce((maxIndex, value, index, arr) => (value > arr[maxIndex] ? index : maxIndex), 0);
+}
 /* ---------------------------------- verificare a datelor MINST ----------------------------------
 // setup{
     let row = mnistData.getRow(0);  // For example, let's load the first image
