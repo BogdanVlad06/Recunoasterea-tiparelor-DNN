@@ -40,23 +40,23 @@ class Grid {
                 {f: 1, s: 0}   
             ];
             let queue = [];
-            queue.push({cx : x, cy : y, intensity : 1});
-            marked[x][y] = 1;
+            queue.push({cx : x, cy : y, intensity : 0.4});
+            marked[x][y] = true;
 
             while (queue.length != 0) {
                 let cx = queue[0].cx, cy = queue[0].cy, intensity = queue[0].intensity;
                 queue.shift();
-                let newVal = this.grid[cx][cy].getVal() + intensity;
-                this.grid[cx][cy].setVal(min(newVal, 1));
-                if (newVal > 0.1) {
+                let newVal = min(1, this.grid[cx][cy].getVal() + intensity);
+                if (newVal > 0.01) {
+                this.grid[cx][cy].setVal(newVal);//min(newVal, 1));
                     for (let i = 0; i < neighbour.length; ++i) {
                         if (Math.random() > 0.25) {
                             let nx = cx + neighbour[i].f, 
                                 ny = cy + neighbour[i].s,
                                 nIntensity = intensity * decay;
-                            if (this.inBounds(nx, ny) && marked[nx][ny] != 1) {
+                            if (this.inBounds(nx, ny) && !marked[nx][ny]) {
                                 queue.push({cx : nx, cy : ny, intensity : nIntensity}); // next
-                                marked[nx][ny] = 1;
+                                marked[nx][ny] = true;
                             }
                         }
                     }
