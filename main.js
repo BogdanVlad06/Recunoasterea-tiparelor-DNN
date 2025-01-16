@@ -11,7 +11,8 @@ let grid = new Grid(noPixels, imgWidth);
 let canvas;
 let brushHardness = 0.15;   
 // ----------------------- Buttons ---------------------------
-let predictionButton, resetCanvasButton, testButton, trainButton, stopButton, saveButton, loadButton, loadRandomTestImgButton;
+let predictionButton, resetCanvasButton, testButton, trainButton, stopButton, saveButton, loadButton, loadRandomTestImgButton,
+    reinitNetworkButton;
 let PredictionText;
 
 let brushSlider;
@@ -28,24 +29,61 @@ let numOfLayers = 3;
 let trainImages = new Array(), trainLabels = new Array();
 let testImages = new Array(), testLabels = new Array();
 
-function preload() {
-    trainData = loadTable("MNIST_dataset/mnist_train.csv", "csv", "header");
-    testData = loadTable("MNIST_dataset/mnist_test.csv", "csv", "header");
-}
+// function preload() {
+//     trainData = loadTable("MNIST_dataset/mnist_train.csv", "csv", "header");
+//     testData = loadTable("MNIST_dataset/mnist_test.csv", "csv", "header");
+// }
+
+// function processMNISTdata() {
+//     for (let i = 0; i < trainData.getRowCount(); i++) {
+//         let row = trainData.getRow(i).arr;
+    
+//         // First value is the label
+//         let label = Number(row[0]);
+//         trainLabels.push(label);
+    
+//         // Rest are pixel values
+//         let image = row.slice(1).map(x => Number(x) / 255);
+//         trainImages.push(image);
+//     }
+//     for (let i = 0; i < testData.getRowCount(); i++) {
+//         let row = testData.getRow(i).arr;
+    
+//         // First value is the label
+//         let label = Number(row[0]);
+//         testLabels.push(label);
+    
+//         // Rest are pixel values
+//         let image = row.slice(1).map(x => Number(x) / 255);
+//         testImages.push(image);
+//     }
+// }
 
 // ---------------------- NETWORK -----------------------
 let NN;
+
+function initNetwork() {
+    NN.initializeLayer(1, 16, inputDim, ReLU); // HidL1
+    NN.initializeLayer(2, 16, 16, ReLU); // HidL2 
+    NN.initializeLayer(3, outputDim, 16, ReLU); // OutL
+}
+
 //---------------------------------- Program ----------------------------------
 function setup() {
-    processMNISTdata();
+    //processMNISTdata();
     canvas = createCanvas(imgWidth + 400, imgWidth + 100);
     centerCanvas(canvas, windowWidth, width, windowHeight, height);
     
     NN = new NeuralNetwork(outputDim, numOfLayers, learningRate);
     
-    NN.initializeLayer(1, 16, inputDim, ReLU); // HidL1
-    NN.initializeLayer(2, 16, 16, ReLU); // HidL2 
-    NN.initializeLayer(3, outputDim, 16, ReLU); // OutL
+    initNetwork();
+
+    reinitNetworkButton = createButton("Reinit Network");
+    reinitNetworkButton.mouseClicked(
+        function() {
+            initNetwork();
+        }
+    );
     
     resetCanvasButton = createButton("reset Canvas");
     resetCanvasButton.mouseClicked(
@@ -222,6 +260,8 @@ function mouseDragged() {
 function windowResized() {
     centerCanvas(canvas, windowWidth, width, windowHeight, height);
     
+    reinitNetworkButton.position(canvas.x + imgWidth - reinitNetworkButton.width, canvas.y + imgWidth);
+
     // Reposition all buttons relative to the canvas
     let xOffset = 0, yOffset = 21; 
     resetCanvasButton.position(canvas.x + xOffset, canvas.y - yOffset);
@@ -257,31 +297,6 @@ function windowResized() {
     
     lossText.position(canvas.x , canvas.y + imgWidth + 10);
     accuracyText.position(canvas.x, canvas.y + imgWidth + 30);
-}
-
-function processMNISTdata() {
-    for (let i = 0; i < trainData.getRowCount(); i++) {
-        let row = trainData.getRow(i).arr;
-    
-        // First value is the label
-        let label = Number(row[0]);
-        trainLabels.push(label);
-    
-        // Rest are pixel values
-        let image = row.slice(1).map(x => Number(x) / 255);
-        trainImages.push(image);
-    }
-    for (let i = 0; i < testData.getRowCount(); i++) {
-        let row = testData.getRow(i).arr;
-    
-        // First value is the label
-        let label = Number(row[0]);
-        testLabels.push(label);
-    
-        // Rest are pixel values
-        let image = row.slice(1).map(x => Number(x) / 255);
-        testImages.push(image);
-    }
 }
 
 function updateMetrics(testLoss, accuracy) {
