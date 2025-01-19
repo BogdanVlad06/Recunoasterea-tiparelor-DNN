@@ -6,10 +6,14 @@
 //---------------------------------- MNIST Dataset table conversion ---------------------------------
 let trainData, testData;
 //---------------------------------- Variables ----------------------------------
-let noPixels = 28, imgWidth = 15 * noPixels;
+let noPixels = 28, 
+    cellSize = 15, 
+    imgWidth = cellSize * noPixels;
 let grid = new Grid(noPixels, imgWidth);
 let canvas;
 let brushHardness = 0.15;   
+let painting = false;
+
 // ----------------------- Buttons ---------------------------
 let predictionButton, resetCanvasButton, testButton, trainButton, stopButton, saveButton, loadButton, loadRandomTestImgButton,
     reinitNetworkButton;
@@ -29,35 +33,35 @@ let numOfLayers = 3;
 let trainImages = new Array(), trainLabels = new Array();
 let testImages = new Array(), testLabels = new Array();
 
-// function preload() {
-//     trainData = loadTable("MNIST_dataset/mnist_train.csv", "csv", "header");
-//     testData = loadTable("MNIST_dataset/mnist_test.csv", "csv", "header");
-// }
+function preload() {
+    //trainData = loadTable("MNIST_dataset/mnist_train.csv", "csv", "header");
+    testData = loadTable("MNIST_dataset/mnist_test.csv", "csv", "header");
+}
 
-// function processMNISTdata() {
-//     for (let i = 0; i < trainData.getRowCount(); i++) {
-//         let row = trainData.getRow(i).arr;
+function processMNISTdata() {
+    // for (let i = 0; i < trainData.getRowCount(); i++) {
+    //     let row = trainData.getRow(i).arr;
     
-//         // First value is the label
-//         let label = Number(row[0]);
-//         trainLabels.push(label);
+    //     // First value is the label
+    //     let label = Number(row[0]);
+    //     trainLabels.push(label);
     
-//         // Rest are pixel values
-//         let image = row.slice(1).map(x => Number(x) / 255);
-//         trainImages.push(image);
-//     }
-//     for (let i = 0; i < testData.getRowCount(); i++) {
-//         let row = testData.getRow(i).arr;
+    //     // Rest are pixel values
+    //     let image = row.slice(1).map(x => Number(x) / 255);
+    //     trainImages.push(image);
+    // }
+    for (let i = 0; i < testData.getRowCount(); i++) {
+        let row = testData.getRow(i).arr;
     
-//         // First value is the label
-//         let label = Number(row[0]);
-//         testLabels.push(label);
+        // First value is the label
+        let label = Number(row[0]);
+        testLabels.push(label);
     
-//         // Rest are pixel values
-//         let image = row.slice(1).map(x => Number(x) / 255);
-//         testImages.push(image);
-//     }
-// }
+        // Rest are pixel values
+        let image = row.slice(1).map(x => Number(x) / 255);
+        testImages.push(image);
+    }
+}
 
 // ---------------------- NETWORK -----------------------
 let NN;
@@ -70,7 +74,7 @@ function initNetwork() {
 
 //---------------------------------- Program ----------------------------------
 function setup() {
-    //processMNISTdata();
+    processMNISTdata();
     canvas = createCanvas(imgWidth + 400, imgWidth + 100);
     centerCanvas(canvas, windowWidth, width, windowHeight, height);
     
@@ -241,7 +245,7 @@ function draw() {
     background(255);
     brushHardness = brushSlider.value();
     grid.show();
-    
+    if (painting) { brush() }
     let input = flatten(grid.getGrid());
     NN.feedForward(input);
     NN.computeCaseProb();
@@ -249,12 +253,30 @@ function draw() {
     PredictionText.html('Predicted: ' + NN.getPrediction());
     PredictionText.position(canvas.x + (imgWidth / 2) - 60, canvas.y + imgWidth);
     PredictionText.style('font-size', '32px');
-
+    
     drawNetwork();
 }
 
-function mouseDragged() { 
-    grid.colour(mouseY, mouseX, brushHardness); // mouseX se refera la Y (mergand pe axa oY) analog pt mouseY;
+function mousePressed() {
+    painting = true;
+}
+
+function mouseReleased() {
+    painting = false;
+}
+
+function brush() {
+    if (mouseX >= 0 && mouseX <= imgWidth && mouseY >= 0 && mouseY <= imgWidth) {
+        let gridX = Math.floor(mouseX / cellSize), gridY = Math.floor(mouseY / cellSize);
+        let pGridX = Math.floor(pmouseX / cellSize), pGridY = Math.floor(pmouseY / cellSize);
+        let deltaX = gridX - pGridX, deltaY = gridY - pGridY;
+        let dist = sqrt((deltaX) ** 2 + (deltaY) ** 2);
+        if (dist > 0) {
+            grid.drawLine(pGridX, pGridY, deltaX, deltaY, min(0.5, brushHardness * 2));
+        } else {
+            grid.colour(gridY, gridX, brushHardness); // mouseX se refera la Y (mergand pe axa oY) analog pt mouseY;
+        }    
+        }
 }
 
 function windowResized() {
