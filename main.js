@@ -29,12 +29,12 @@ let inputDim = noPixels ** 2;
 let outputDim = 10;
 let numOfLayers = 3;
 
-//-------------------------------------- LOADING DATASET ---------------------------------------
+//-------------------------------------- LOADING DATASET - DEV ONLY ---------------------------------------
 let trainImages = new Array(), trainLabels = new Array();
 let testImages = new Array(), testLabels = new Array();
 
 function preload() {
-    //trainData = loadTable("MNIST_dataset/mnist_train.csv", "csv", "header");
+    // trainData = loadTable("MNIST_dataset/mnist_train.csv", "csv", "header");
     testData = loadTable("MNIST_dataset/mnist_test.csv", "csv", "header");
 }
 
@@ -50,6 +50,7 @@ function processMNISTdata() {
     //     let image = row.slice(1).map(x => Number(x) / 255);
     //     trainImages.push(image);
     // }
+    // ---------------------- Test data -----------------------
     for (let i = 0; i < testData.getRowCount(); i++) {
         let row = testData.getRow(i).arr;
     
@@ -86,6 +87,7 @@ function setup() {
     reinitNetworkButton.mouseClicked(
         function() {
             initNetwork();
+            updateMetrics(NaN, NaN);
         }
     );
     
@@ -95,7 +97,7 @@ function setup() {
             grid = new Grid(noPixels, imgWidth);
         }
     );
-
+/* ---------------------- DEV buttons for training and testing -----------------------
     trainButton = createButton("train");
     trainButton.mouseClicked(
         function() {
@@ -111,15 +113,16 @@ function setup() {
         NN.stopTraining(true);
     });
 
+    */
     testButton = createButton("test");
     testButton.mouseClicked(
         function() {
             NN.test(testImages, testLabels);
         }
     );
-
-    predictionButton = createButton('Predict');
     PredictionText = createDiv();
+/* ---------------------- Prediction button - when live prediction is in use, the button is pointless-----------------------
+    predictionButton = createButton('Predict');
     predictionButton.mouseClicked(
         function() {
             let input = flatten(grid.getGrid());
@@ -132,7 +135,7 @@ function setup() {
             PredictionText.style('font-size', '32px');
         }
     );
-
+*/
     saveButton = createButton("Save");
     saveButton.mouseClicked(
         function() {
@@ -158,10 +161,10 @@ function setup() {
     );
 
     brushSlider = createSlider(0.01, 0.5, brushHardness, 0.01);
-    brushSlider.size(80);
+    brushSlider.size(100);
     
-    lossText = createDiv("Loss: 0").style('font-size', '16px').position(10, height - 40);
-    accuracyText = createDiv("Accuracy: 0%").style('font-size', '16px').position(10, height - 20);
+    lossText = createDiv("Loss: NaN").style('font-size', '16px').position(10, height - 40);
+    accuracyText = createDiv("Accuracy: NaN%").style('font-size', '16px').position(10, height - 20);
     windowResized();
 }
 
@@ -246,6 +249,7 @@ function draw() {
     brushHardness = brushSlider.value();
     grid.show();
     if (painting) { brush() }
+    // live prediction
     let input = flatten(grid.getGrid());
     NN.feedForward(input);
     NN.computeCaseProb();
@@ -272,11 +276,11 @@ function brush() {
         let deltaX = gridX - pGridX, deltaY = gridY - pGridY;
         let dist = sqrt((deltaX) ** 2 + (deltaY) ** 2);
         if (dist > 0) {
-            grid.drawLine(pGridX, pGridY, deltaX, deltaY, min(0.5, brushHardness * 2));
+            grid.drawLine(pGridX, pGridY, deltaX, deltaY, min(0.4, brushHardness * 2));
         } else {
-            grid.colour(gridY, gridX, brushHardness); // mouseX se refera la Y (mergand pe axa oY) analog pt mouseY;
+            grid.colour(gridY, gridX, brushHardness * 0.99); // mouseX se refera la Y (mergand pe axa oY) analog pt mouseY;
         }    
-        }
+    }
 }
 
 function windowResized() {
@@ -285,37 +289,37 @@ function windowResized() {
     reinitNetworkButton.position(canvas.x + imgWidth - reinitNetworkButton.width, canvas.y + imgWidth);
 
     // Reposition all buttons relative to the canvas
-    let xOffset = 0, yOffset = 21; 
+    let xOffset = 0, yOffset = 21, spacing = 20; 
     resetCanvasButton.position(canvas.x + xOffset, canvas.y - yOffset);
-    xOffset += resetCanvasButton.width;
+    xOffset += spacing + resetCanvasButton.width;
 
-    trainButton.position(canvas.x + xOffset, canvas.y - yOffset);
-    xOffset += trainButton.width;   
+    // trainButton.position(canvas.x + xOffset, canvas.y - yOffset);
+    // xOffset += spacing + trainButton.width;   
 
     testButton.position(canvas.x + xOffset, canvas.y - yOffset);
-    xOffset += testButton.width;
+    xOffset += spacing + testButton.width;
 
     saveButton.position(canvas.x + xOffset, canvas.y - yOffset);
-    xOffset += saveButton.width;
+    xOffset += spacing + saveButton.width;
 
     loadButton.position(canvas.x + xOffset, canvas.y - yOffset);
-    xOffset += loadButton.width;
+    xOffset += spacing + loadButton.width;
 
     loadRandomTestImgButton.position(canvas.x + xOffset, canvas.y - yOffset);
-    xOffset += loadRandomTestImgButton.width;
+    xOffset += spacing + loadRandomTestImgButton.width;
 
-    predictionButton.position(canvas.x + xOffset, canvas.y - yOffset);
-    xOffset += predictionButton.width;
+    // predictionButton.position(canvas.x + xOffset, canvas.y - yOffset);
+    // xOffset += spacing + predictionButton.width;
 
     PredictionText.position(canvas.x + xOffset, canvas.y - yOffset);
     xOffset = 0;
     yOffset += 21;
 
     brushSlider.position(canvas.x + xOffset, canvas.y - yOffset);
-    xOffset += resetCanvasButton.width;
+    xOffset += spacing + resetCanvasButton.width;
 
-    stopButton.position(canvas.x + xOffset, canvas.y - yOffset);
-    xOffset += stopButton.width;
+    // stopButton.position(canvas.x + xOffset, canvas.y - yOffset);
+    // xOffset += spacing + stopButton.width;
     
     lossText.position(canvas.x , canvas.y + imgWidth + 10);
     accuracyText.position(canvas.x, canvas.y + imgWidth + 30);

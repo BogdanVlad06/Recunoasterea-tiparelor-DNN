@@ -127,7 +127,7 @@ class NeuralNetwork {
         this.trainingStop = value;
     }
 
-    /*async*/ train(startingLearingValue, decay, inputsArr, labelsArr, numCycles, batchSize = 10) {
+    async train(startingLearingValue, decay, inputsArr, labelsArr, numCycles, batchSize = 10) {
         const numInputs = inputsArr.length;
         
         for (let epoch = 0; epoch < numCycles; ++epoch) {
@@ -166,7 +166,7 @@ class NeuralNetwork {
                 this.update(batchSize);
 
                 epochLoss += batchLoss / batchSize;
-                //await new Promise(resolve => setTimeout(resolve, 0));
+                await new Promise(resolve => setTimeout(resolve, 0));
 
             }
             let accuracy = correctPredictions / numInputs;
