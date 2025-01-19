@@ -5,6 +5,9 @@ class NeuralNetwork {
         this.learningRate = learningRate; 
         this.trainingStop = false;
 
+        this.loss;
+        this.accuracy;
+
         this.network = new Array(this.numHiddenLayers + 2);
         this.network[0] = new Layer(0, 0);
 
@@ -115,6 +118,8 @@ class NeuralNetwork {
         let accuracy = correctPredictions / numInputs;
         testLoss /= numInputs;
         updateMetrics(testLoss, accuracy);
+        this.loss = testLoss;
+        this.accuracy = accuracy;
         console.log("total: ", numInputs, "; guessed: ", correctPredictions, "struggled with: ", struggles);
     }
 
@@ -207,7 +212,9 @@ class NeuralNetwork {
     // ------------------------------ SAVE / LOAD -----------------------------------------
     saveNetworkConfigToFile(fileName = "network_config.json") {
         let data = {
-            layers: []
+            layers: [],
+            accuracy: this.accuracy,
+            loss: this.loss
         };
     
         for (let i = 1; i <= this.numHiddenLayers + 1; ++i) {
@@ -235,6 +242,9 @@ class NeuralNetwork {
                 this.network[i].setBiasesArr(layerData.biases);
                 this.network[i].setWeightsArr(layerData.weights);
             }
+            this.accuracy = data.accuracy;
+            this.loss = data.loss;    
+            updateMetrics(this.loss, this.accuracy);
         });
     }
 }
