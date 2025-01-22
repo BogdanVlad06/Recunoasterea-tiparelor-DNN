@@ -49,8 +49,11 @@ function sigmoidDerivate(calculatedSigmoid) { // the neuron's Activation is the 
     return calculatedSigmoid * (1 - calculatedSigmoid);
 }
 
-function softmax(activ, outputActivExpSum) {
-    return Math.exp(activ) / outputActivExpSum;
+function softmax(weightedSum) {
+    let expZArr = weightedSum.map(Math.exp);
+    let expSum = expZArr.reduce((acc, curr) => acc + curr, 0);
+    let activationArr = expZArr.map(z => z / expSum);
+    return activationArr;
 }
 
 function derivate(givenFunction) {

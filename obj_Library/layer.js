@@ -21,7 +21,12 @@ class Layer {
     computeActivationFromMatrix(weightedSumMatrix) { // works!
         let weightedSumArr = weightedSumMatrix.toArray();
         weightedSumArr = weightedSumArr.flat();
-        this.activationArr = weightedSumArr.map(this.activationFunction);
+        if (this.activationFunction != softmax) {
+            this.activationArr = weightedSumArr.map(this.activationFunction);
+        }
+        else {
+            this.activationArr = this.activationFunction(weightedSumArr);
+        }
     }
 
     computeAvgGradientArr(scalar) {
