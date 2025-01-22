@@ -29,19 +29,9 @@ class NeuralNetwork {
             Z_matrix = math.add(math.multiply(W_matrix, prevA_matrix), B_matrix);
             this.network[layerIndex].computeActivationFromMatrix(Z_matrix);
         }
+
+        this.caseProbability = this.network[this.numHiddenLayers + 1].getActivationArr();
     }
-    
-    computeCaseProb() { // Works!
-        let outputLayerIndex = this.numHiddenLayers + 1;
-        let activations = this.network[outputLayerIndex].getActivationArr();
-        let expActivations = activations.map(Math.exp);
-        let expSum = expActivations.reduce((acc, curr) => acc + curr, 0);
-        
-        for (let digit = 0; digit < this.outputSize; ++digit) {
-            this.caseProbability[digit] = softmax(activations[digit], expSum);
-        }
-    }
-    
     calculateLoss(label) { // cu CCEL, (am omis sa folosesc MSE)
         let loss = -Math.log(this.caseProbability[label]);
         return loss;
