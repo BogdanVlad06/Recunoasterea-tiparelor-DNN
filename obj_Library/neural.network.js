@@ -36,7 +36,13 @@ class NeuralNetwork {
         this.caseProbability = this.network[this.numHiddenLayers + 1].getActivationArr();
     }
     calculateLoss(label) { // cu CCEL, (am omis sa folosesc MSE)
-        let loss = -Math.log(this.caseProbability[label]);
+        console.log(this.caseProbability[label]);
+        let loss = 0;
+        if (this.caseProbability[label]) {
+            loss -= Math.log(this.caseProbability[label]);
+
+        }
+        console.log(loss);
         return loss;
     }
     
@@ -94,7 +100,6 @@ class NeuralNetwork {
             let label = labelsArr[index];
 
             this.feedForward(input);
-            this.computeCaseProb();
             this.predict();
 
             let prediction = this.getPrediction();
@@ -140,7 +145,6 @@ class NeuralNetwork {
                     const label = labelsArr[index];
                     
                     this.feedForward(input);
-                    this.computeCaseProb();
                     this.predict();
                     
                     let prediction = this.getPrediction();
