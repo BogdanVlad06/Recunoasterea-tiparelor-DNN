@@ -5,6 +5,9 @@ class NeuralNetwork {
         this.learningRate = learningRate; 
         this.trainingStop = false;
 
+        this.loss;
+        this.accuracy;
+
         this.network = new Array(this.numHiddenLayers + 2);
         this.network[0] = new Layer(0, 0);
 
@@ -105,6 +108,8 @@ class NeuralNetwork {
         let accuracy = correctPredictions / numInputs;
         testLoss /= numInputs;
         updateMetrics(testLoss, accuracy);
+        this.loss = testLoss;
+        this.accuracy = accuracy;
         console.log("total: ", numInputs, "; guessed: ", correctPredictions, "struggled with: ", struggles);
     }
 
@@ -112,7 +117,7 @@ class NeuralNetwork {
         this.trainingStop = value;
     }
 
-    /*async*/ train(startingLearingValue, decay, inputsArr, labelsArr, numCycles, batchSize = 10) {
+    async train(startingLearingValue, decay, inputsArr, labelsArr, numCycles, batchSize = 10) {
         const numInputs = inputsArr.length;
         
         for (let epoch = 0; epoch < numCycles; ++epoch) {
@@ -151,7 +156,7 @@ class NeuralNetwork {
                 this.update(batchSize);
 
                 epochLoss += batchLoss / batchSize;
-                //await new Promise(resolve => setTimeout(resolve, 0));
+                await new Promise(resolve => setTimeout(resolve, 0));
 
             }
             let accuracy = correctPredictions / numInputs;
@@ -182,10 +187,24 @@ class NeuralNetwork {
     getPrediction() {
         return this.prediction;
     }
+
+    getLayerWeights(layerIndex) {
+        return this.network[layerIndex].getWeightsArr();
+    }
+
+    getLayerBiases(layerIndex) {
+        return this.network[layerIndex].getBiasesArr();
+    }
+
+    getLayerActivation(layerIndex) {
+        return this.network[layerIndex].getActivationArr();
+    }
     // ------------------------------ SAVE / LOAD -----------------------------------------
     saveNetworkConfigToFile(fileName = "network_config.json") {
         let data = {
-            layers: []
+            layers: [],
+            accuracy: this.accuracy,
+            loss: this.loss
         };
     
         for (let i = 1; i <= this.numHiddenLayers + 1; ++i) {
@@ -213,6 +232,9 @@ class NeuralNetwork {
                 this.network[i].setBiasesArr(layerData.biases);
                 this.network[i].setWeightsArr(layerData.weights);
             }
+            this.accuracy = data.accuracy;
+            this.loss = data.loss;    
+            updateMetrics(this.loss, this.accuracy);
         });
     }
 }
