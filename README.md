@@ -1,4 +1,7 @@
-**Recunoasterea tiparelor cu ajutorul Retelelor Neuronale Convolutionale**
+## Download Files
+- [PDF Version](document.pdf)
+
+## **Recunoasterea tiparelor cu ajutorul Retelelor Neuronale**
 
 ***LUCRARE DE SPECIALITATE***
 
@@ -9,16 +12,8 @@
 
 ***Specializarea: Matematică – Informatică, Intensiv Informatică***
 
+Clasa: **a XII - a D**
 
-`                                                                              `**Absolvent:**
-
-Gurău Bogdan-Vlad
-**
-`                                                                             `Clasa: **a XII - a D**
-
-Zalău
-
-\- mai 2025 -
 # Cuprins
 [*Introducere*	3](#_toc188660503)
 
@@ -62,8 +57,6 @@ Zalău
 
 Conceptul pornește de la fundamentele neuronului, unitatea de bază a sistemului nervos uman. Prin capacitatea sa de a primi, procesa și transmite informații, neuronul biologic a devenit sursa de inspirație pentru dezvoltarea unuia dintre cele mai inovatoare concepte din informatică – neuronul artificial. Trecerea de la înțelegerea funcționării creierului la construirea unor modele informatice a fost posibilă datorită matematicii, statisticii și progreselor în tehnologie. Astfel, neuronul "artificial" reprezintă o abstracție, un model matematic simplificat, dar extrem de puternic, capabil să analizeze date, să învețe și să facă predicții.
 
-![Artificial Intelligence vs. Human Brain — A Love-Hate Relationship ...](Aspose.Words.0d180a79-60e3-4aee-9eab-d3e59b2b0ff6.004.jpeg)
-
 
 # <a name="_toc188660507"></a>*Descrierea proiectului:*
 Proiectul meu constă în **realizarea arhitecturii unei rețele neuronale (R.N) de la zero**, cu scopul de a recunoaște cifre scrise de mână. Deși recunoașterea cifrelor este adesea asociată cu rețele neuronale convoluționale (R.N.C), în cazul de față am optat pentru o arhitectură *feed-forward* (fără straturi convoluționale), pentru a demonstra principiile de bază ale antrenării unei rețele neuronale și a le pune în practică într-o manieră cât mai transparentă. Rețeaua a fost ulterior integrată într-o **interfață web intuitivă**, care permite utilizatorilor să testeze funcționalitatea modelului direct online. Astfel, arhitectura generală a proiectului poate fi împărțită în două componente principale: **partea de inteligență artificială** (modelul R.N) și **partea de interfață** (aplicația web).
@@ -82,87 +75,20 @@ Am ales funcția matematica de activare **ReLU** (Rectified Linear Unit), pentru
    1. **Straturile ascunse** sunt destinate să proceseze și să transforme informațiile provenite de la stratul de intrare pana la stratul de ieșire. Eu am ales o configurație de 2 astfel de straturi, fiecare cu 16 neuroni, pentru o mai bună vizualizare grafică.
    1. ![](Aspose.Words.0d180a79-60e3-4aee-9eab-d3e59b2b0ff6.005.png)**Stratul de ieșire** primește informațiile procesate de straturile anterioare și generează rezultatul final al rețelei. Pentru problema noastră acest strat conține 10 neuroni (câte unul pentru fiecare clasă (cifra) de la 0 la 9). La acest strat am ales funcția matematica ***softmax*** pentru a obține probabilități pentru fiecare clasă, în loc de actăvări. 
 
-
-
-*Concretizarea noțiunilor de mai sus se găsesc în aceste secvențe de cod:* 
-
-class SmpLayer {
-
-`    `constructor(numNeurons, connectionsToPrevL, activFunction = null) {
-
-`        `this.activFunction = activFunction
-
-`        `this.weights; // Li x Li - 1
-
-`        `this.biases; // Li x 1
-
-
-
-`        `this.basicInit(numNeurons, connectionsToPrevL);
-
-`    `}
-
-`    `basicInit(numNeurons, connectionsToPrevL) {// Initialize weights and biases with random values
-
-`        `this.weights = math.random([numNeurons, connectionsToPrevL], -1, 1);
-
-`        `this.biases = math.random([numNeurons, 1], 0, 1); 
-
-`    `}
-
-}
-
-class SmpNetwork {
-
-`    `constructor(size) {
-
-`        `this.size = size; // hid + output (== index of Output Layer)
-
-`        `this.network = new Array(size + 1); // 0 is input layer
-
-`    `}
-
-`    `initializeLayer(index, size, connections, activFunction) {
-
-`        `this.network[index] = new SmpLayer(size, connections, activFunction);
-
-`    `}
-
-}
-
-function setup() {
-
-`    `simpleNN = new SmpNetwork(simpleNNsize);
-
-
-
-`    `simpleNN.initializeLayer(1, 16, inputDim, ReLU); // HidL2
-
-`    `simpleNN.initializeLayer(2, 16, 16, ReLU); // HidL2
-
-`    `simpleNN.initializeLayer(3, 10, 16, softmax); // OutL
-
-}
-
-
-
-Acesta a fost punctul de pornire al rețelei neuronale, codul fiind la prima sa versiune, însă pe măsura parcurgerii documentului vor veni în completare modificările ce formează rețeaua în punctul final.
-
-
 1. ### <a name="_toc188660510"></a>*Mecanismul de antrenare*
-   1. *Propagarea* datei de intrare prin rețea pentru a obține predicția:
+   1. **Propagarea** datei de intrare prin rețea pentru a obține predicția:
       1. Se atribuie stratului de intrare data de intrare (”imaginea”).** 
       1. ![](Aspose.Words.0d180a79-60e3-4aee-9eab-d3e59b2b0ff6.006.png)Se calculează pentru fiecare strat matricea sumei ponderate utilizând formula definită și se aplica funcția de activare corespunzătoare stratului în vederea obținerii matricei de activări.
       1. Se stochează pentru fiecare strat activarea în vederea eliminării calculelor redundante. 
-   1. *Calculul erorii* pentru a stabili cât a greșit rețeaua prin exprimarea unei valori**:**
+   1. **Calculul erorii** pentru a stabili cât a greșit rețeaua prin exprimarea unei valori**:**
       1. Se compară predicția cu eticheta (cifra corespunzătoare imaginii din setul de date) folosind funcția de cost. Eu am ales să implementez o funcție de cost de tipul clasificare multi-clasă și am utilizat **Cross-Entropy Loss**: se ia probabilitatea prezisă pentru clasa corectă și se aplică funcția logaritm, obținând astfel valoarea erorii.
-   1. *Propagarea înapoi*** a modificărilor necesare** în vederea minimizării erorii:
+   1. **Propagarea înapoi*** a modificărilor necesare** în vederea minimizării erorii:
       1. Minimizarea erorii rețelei se realizează prin ajustarea parametrilor astfel încât să  producă predicții cât mai precise. Pentru a determina ajustările necesare fiecărui neuron (adică a parametrilor acestuia), vom introduce termenul de **gradient al erorii** (”contribuția la eroare”), care este propagat din stratul de ieșire către straturile ascunse. Matematic vorbind este partea cea mai complexă.
       1. Se folosește **regula lanțului** și **derivatele**:	
 
 ![](Aspose.Words.0d180a79-60e3-4aee-9eab-d3e59b2b0ff6.007.png)![](Aspose.Words.0d180a79-60e3-4aee-9eab-d3e59b2b0ff6.008.png)![](Aspose.Words.0d180a79-60e3-4aee-9eab-d3e59b2b0ff6.009.png)![](Aspose.Words.0d180a79-60e3-4aee-9eab-d3e59b2b0ff6.010.png)![](Aspose.Words.0d180a79-60e3-4aee-9eab-d3e59b2b0ff6.011.png)![](Aspose.Words.0d180a79-60e3-4aee-9eab-d3e59b2b0ff6.012.png)![](Aspose.Words.0d180a79-60e3-4aee-9eab-d3e59b2b0ff6.013.png)derivata măsoară cât de sensibilă este eroarea la un anumit parametru, de unde determinăm cu cât trebuie schimbat acel parametru pentru ca  eroarea să scadă Aceasta este formula folosită pentru a calcula **delta**, notație utilizată pentru a simplifica formula.
 
-1. *Actualizarea parametrilor***:**
+1. **Actualizarea parametrilor** :
    1. Aceasta implică ajustarea fiecărui parametru în direcția opusă gradientului său, proporțional cu rata de învățare (”η”) care controlează mărimea pașilor de actualizare. 
 1. ### <a name="_toc188660511"></a>*Setul de date și îmbunătățiri*
 Modified National Institute of Standards and Technology database (M.N.I.S.T):
@@ -186,131 +112,10 @@ Modified National Institute of Standards and Technology database (M.N.I.S.T):
 1. ## *<a name="_toc188660512"></a>Componenta de interfață web*
 Aplicația web reprezintă modul principal prin care utilizatorii pot interacționa cu modelul neuronal (acesta este ”frontend-ul”). Am proiectat o interfață intuitivă cu ajutorul limbajului JavaScript și a librăriei extensie p5.js, care permite testarea în timp real a rețelei neuronale, oferind feedback instant utilizatorului. Interfața web de asemenea facilitează vizualizarea arhitecturii rețelei și explorarea capacității acesteia de a recunoaște cifre desenate de utilizator în timp real. 
 
-Codul HTML care cuprinde toate fișierele componente ce alcătuiesc aplicația web:
-
-<!DOCTYPE html>
-
-<html lang="en">
-
-`  `<head>
-
-`    `<meta charset="utf-8" />
-
-`    `<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-`    `<title>RNC</title>
-
-`    `<link rel="stylesheet" type="text/css" href="style.css">
-
-`    `<script src="libraries/p5.min.js"></script>
-
-`    `<script src="libraries/p5.sound.min.js"></script>
-
-`  `</head>
-
-`  `<body>
-
-`    `<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/10.6.0/math.js"></script>
-
-`    `<script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
-
-`    `<script src="obj\_Library/neural.network.js"></script>
-
-`    `<script src="obj\_Library/layer.js"></script>
-
-`    `<script src="obj\_Library/utils.js"></script>
-
-`    `<script src="obj\_Library/cell.js"></script>
-
-`    `<script src="obj\_Library/grid.js"></script>
-
-`    `<script src="main.js"></script>
-
-`  `</body>
-
-</html>
-
-Secvență de cod din fișierul script ”main.js”:
-
-function draw() {
-
-`    `background(255);
-
-`    `brushHardness = brushSlider.value();
-
-`    `grid.show();
-
-`    `if (training == false) {
-
-`        `if (painting) { brush() }
-
-`        `let input = flatten(grid.getGrid());
-
-`        `NN.feedForward(input);
-
-`        `NN.predict();
-
-`        `PredictionText.html('Predicted: ' + NN.getPrediction());
-
-`        `PredictionText.position(canvas.x + (imgWidth / 2) - 60, canvas.y + imgWidth);
-
-`        `PredictionText.style('font-size', '32px');
-
-`    `} 
-
-`    `drawNetwork();
-
-}
 # <a name="_hlk188639070"></a>*<a name="_hlk188639028"></a><a name="_toc188660513"></a>Despre limbajul de programare si instrumente:*
 Pentru dezvoltarea și testarea aplicației, am utilizat Visual Studio Code, un editor modern și performant. Acesta mi-a oferit autocompletare inteligentă pentru limbaje pe care le-am folosit, precum HTML, CSS și JavaScript și **integrarea cu Git**, pentru gestionarea versiunilor codului. 
 
 O caracteristică distinctivă a proiectului este utilizarea **Programării Orientate pe Obiecte (OOP)**, care facilitează organizarea logicii și modularitatea codului. Clasele și obiectele ajută la modelarea entităților aplicației, cum ar fi rețeaua neuronală, straturile, grila pentru desen, celulele grilei ș.a.m.d. Exemplu: 
-
-class Cell {
-
-`    `constructor(x, y, width, val){        
-
-`        `this.x = x;
-
-`        `this.y = y;
-
-`        `this.cellWidth = width;
-
-`        `this.val = val; // cuprinsă intre 0 și 1, indică activarea pixelului (min-max)
-
-`    `}
-
-`    `show() {
-
-`        `fill((1 - this.val) \* 255); // voi umple cu negru daca e activat, sau alb in caz contrat
-
-`        `square(this.x \* this.cellWidth, this.y \* this.cellWidth, this.cellWidth);
-
-`    `}
-
-
-
-`    `// ------------------- Setters -------------------
-
-`    `setVal(newVal) {
-
-`        `this.val = newVal;
-
-`    `}
-
-
-
-`    `// ------------------- Getters -------------------
-
-`    `getVal() {
-
-`        `return this.val;
-
-`    `}
-
-}
-
-
 
 **HTML** (HyperText Markup Language) este utilizat pentru a defini structura de bază a paginii web
 
@@ -349,7 +154,7 @@ NaN indică că nu au fost înregistrate valori pentru a putea fi afișate.
 - [Datele MNIST folosite](https://www.kaggle.com/datasets/oddrationale/mnist-in-csv)
 - [](https://www.kaggle.com/datasets/oddrationale/mnist-in-csv)**GitHub** *: [Profil GitHub*](https://github.com/BogdanVlad06/Recunoasterea-tiparelor-CNN)*
 
-![Smiling Buck Tooth Emoji HD Original | Smiling Buck Tooth Emoji](Aspose.Words.0d180a79-60e3-4aee-9eab-d3e59b2b0ff6.015.jpeg)
+![Smiling Buck Tooth Emoji HD Original | Smiling Buck Tooth Emoji](https://i.pinimg.com/736x/e4/08/9e/e4089e5007c2177db368470329a6e5be.jpg)
 
 Sfârșit!
 2
