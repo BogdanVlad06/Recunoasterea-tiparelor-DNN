@@ -13,6 +13,7 @@ let grid = new Grid(noPixels, imgWidth);
 let canvas;
 let brushHardness = 0.15;   
 let painting = false;
+let training = false;
 
 // ----------------------- Buttons ---------------------------
 let predictionButton, resetCanvasButton, testButton, trainButton, stopButton, saveButton, loadButton, loadRandomTestImgButton,
@@ -24,7 +25,7 @@ let brushSlider;
 let learningRate = 0.03;
 let learningRateDecay = 0.03;
 let numEpoch = 50;
-let miniBatchSize = 15;
+let miniBatchSize = 30;
 let inputDim = noPixels ** 2;
 let outputDim = 10;
 let numOfLayers = 3;
@@ -70,7 +71,7 @@ let NN;
 function initNetwork() {
     NN.initializeLayer(1, 16, inputDim, ReLU); // HidL1
     NN.initializeLayer(2, 16, 16, ReLU); // HidL2 
-    NN.initializeLayer(3, outputDim, 16, ReLU); // OutL
+    NN.initializeLayer(3, outputDim, 16, softmax); // OutL
 }
 
 //---------------------------------- Program ----------------------------------
@@ -91,30 +92,33 @@ function setup() {
         }
     );
     
-    resetCanvasButton = createButton("reset Canvas");
+    resetCanvasButton = createButton("Reset Canvas");
     resetCanvasButton.mouseClicked(
         function() {
             grid = new Grid(noPixels, imgWidth);
         }
     );
 /* ---------------------- DEV buttons for training and testing -----------------------
-    trainButton = createButton("train");
-    trainButton.mouseClicked(
-        function() {
-            noLoop();
-            NN.stopTraining(false);
-            NN.train(learningRate, learningRateDecay, trainImages, trainLabels, numEpoch, miniBatchSize);
-            loop();
-        }
-    );
+    // trainButton = createButton("Train");
+    // trainButton.mouseClicked(
+    //     function() {
+    //         training = true;
+    //         noLoop();
+    //         NN.stopTraining(false);
+    //         NN.train(learningRate, learningRateDecay, trainImages, trainLabels, numEpoch, miniBatchSize);
+    //         loop();
+    //         // training = false;
+    //     }
+    // );
 
-    stopButton = createButton("Stop Training");
-    stopButton.mouseClicked(function() {
-        NN.stopTraining(true);
-    });
+    // stopButton = createButton("Stop Training");
+    // stopButton.mouseClicked(function() {
+    //     NN.stopTraining(true);
+    //     training = false;
+    // });
 
-    */
-    testButton = createButton("test");
+*/
+    testButton = createButton("Test");
     testButton.mouseClicked(
         function() {
             NN.test(testImages, testLabels);
@@ -127,7 +131,6 @@ function setup() {
         function() {
             let input = flatten(grid.getGrid());
             NN.feedForward(input);
-            NN.computeCaseProb();
             NN.predict();
             console.log(NN);
             PredictionText.html('Predicted: ' + NN.getPrediction());
@@ -248,15 +251,16 @@ function draw() {
     background(255);
     brushHardness = brushSlider.value();
     grid.show();
-    if (painting) { brush() }
-    // live prediction
-    let input = flatten(grid.getGrid());
-    NN.feedForward(input);
-    NN.computeCaseProb();
-    NN.predict();
-    PredictionText.html('Predicted: ' + NN.getPrediction());
-    PredictionText.position(canvas.x + (imgWidth / 2) - 60, canvas.y + imgWidth);
-    PredictionText.style('font-size', '32px');
+    if (training == false) {
+        if (painting) { brush() }
+        // live prediction
+        let input = flatten(grid.getGrid());
+        NN.feedForward(input);
+        NN.predict();
+        PredictionText.html('Predicted: ' + NN.getPrediction());
+        PredictionText.position(canvas.x + (imgWidth / 2) - 60, canvas.y + imgWidth);
+        PredictionText.style('font-size', '32px');
+    }
     
     drawNetwork();
 }
@@ -331,5 +335,3 @@ function updateMetrics(testLoss, accuracy) {
         accuracyText.html("Accuracy: " + (accuracy * 100).toFixed(2) + "%");
     }
 }
-
-// PROBLEM -se schimba valorile si devin negative mari
