@@ -17,19 +17,19 @@ Class: **12th Grade**
 
 ### **Contents**
 
-- [*Introduction*](#_introduction)
-  - [*Problem Statement*](#_problem-statement)
-  - [*Approach*](#_approach)
-- [*Motivation*](#_motivation)
-- [*Project Description*](#_project-description)
-  - [**A. Artificial Intelligence Component**](#_ai-component)
-    - [**I. Composition and Structure**](#_composition)
-    - [**II. Training Mechanism**](#_training-mechanism)
-    - [**III. Dataset and Improvements**](#_dataset)
-  - [**B. Web Interface Component**](#_web-interface)
-- [*Programming Language and Tools*](#_tools)
-- [*User Guide*](#_interface-instructions)
-- [*References*](#_bibliography)
+- [*Introduction*](#introduction)
+  - [*Problem Statement*](#problem-statement)
+  - [*Approach*](#approach)
+- [*Motivation*](#motivation)
+- [*Project Description*](#project-description)
+  - [**A. Artificial Intelligence Component**](#ai-component)
+    - [**I. Composition and Structure**](#composition)
+    - [**II. Training Mechanism**](#training-mechanism)
+    - [**III. Dataset and Improvements**](#dataset)
+  - [**B. Web Interface Component**](#web-interface)
+- [*Programming Language and Tools*](#tools)
+- [*User Guide*](#user-guide)
+- [*References*](#references)
 
 ---
 
