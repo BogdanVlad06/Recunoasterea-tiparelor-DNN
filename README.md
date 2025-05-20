@@ -5,15 +5,13 @@
 
 ### **Pattern Recognition Using Neural Networks**
 
-**Specialized Project Romanian high school**
+**High School Graduation Project**
 
-**Field: Theoretical**
+**Field: Theoretical Studies**
 
-**Profile: Real**
+**Specialization: Mathematics & Computer Science**
 
-**Specialization: Mathematics – Computer Science, Intensive Computer Science**
-
-Class: **12th Grade D**
+Class: **12th Grade**
 
 ---
 
@@ -30,15 +28,15 @@ Class: **12th Grade D**
     - [**III. Dataset and Improvements**](#_dataset)
   - [**B. Web Interface Component**](#_web-interface)
 - [*Programming Language and Tools*](#_tools)
-- [*Interface Instructions*](#_interface-instructions)
-- [*Bibliography*](#_bibliography)
+- [*User Guide*](#_interface-instructions)
+- [*References*](#_bibliography)
 
 ---
 
 ### **Introduction**
 
 #### **Problem Statement**
-Handwritten digit recognition is a challenge due to the natural variations in individual handwriting styles. While humans easily adapt to these differences, the question arises: can we create a program capable of simulating the human brain's ability to process information?
+Recognizing handwritten digits is challenging due to the wide variability in personal handwriting styles. While humans adapt to these differences intuitively, the core question is: Can we develop a system that mimics the brain’s capacity to interpret such input?
 
 #### **Approach**
 Neural networks emerge as a solution, replicating this process to offer efficient and precise methods, overcoming the limitations of traditional algorithms.
@@ -46,9 +44,9 @@ Neural networks emerge as a solution, replicating this process to offer efficien
 ---
 
 ### **Motivation**
-In an era defined by rapid technological advancements, *artificial intelligence (AI)* has become a cornerstone across various sectors. This project aligns with this global trend and reflects a personal interest in exploring innovative methods to solve complex problems. By creating a neural network, I sought to integrate theoretical knowledge from mathematics and computer science into a practical project.
+As artificial intelligence becomes increasingly influential across industries, this project reflects both a global trend and a personal interest in innovative problem-solving. My goal was to apply theoretical knowledge from mathematics and computer science to build a practical and interactive AI system.
 
-The foundation of this concept lies in the biological neuron, the basic unit of the human nervous system. By abstracting the neuron's ability to receive, process, and transmit information, artificial neurons have been developed as powerful mathematical models capable of data analysis, learning, and automated decision-making.
+Inspired by the biological neuron — the fundamental unit of the nervous system — artificial neurons replicate the ability to receive, process, and transmit information. This abstraction has proven effective for tasks such as learning, classification, and automated decision-making.
 
 ---
 
@@ -119,7 +117,7 @@ The web interface serves as the primary user interaction point, allowing real-ti
 
 ---
 
-### **Interface Instructions**
+### **User Guide**
 
 - **Canvas**:
   - Draw digits using the mouse.
@@ -131,7 +129,7 @@ The web interface serves as the primary user interaction point, allowing real-ti
 
 ---
 
-### **Bibliography**
+### **References**
 
 - [Neural Networks by 3Blue1Brown](https://www.3blue1brown.com/topics/neural-networks)
 - [MNIST Dataset on Kaggle](https://www.kaggle.com/datasets/oddrationale/mnist-in-csv)
